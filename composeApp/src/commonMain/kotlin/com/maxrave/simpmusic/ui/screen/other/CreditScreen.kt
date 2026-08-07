@@ -142,7 +142,7 @@ fun CreditScreen(
             // Developer blog button
             TextButton(
                 onClick = {
-                    openUrl("https://maxrave.dev")
+                    openUrl("https://github.com/sponsors/maxrave-dev")
                 },
                 modifier =
                     Modifier
