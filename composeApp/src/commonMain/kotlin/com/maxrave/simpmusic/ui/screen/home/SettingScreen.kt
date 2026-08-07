@@ -2313,7 +2313,7 @@ fun SettingScreen(
                     title = stringResource(Res.string.developer_blog),
                     subtitle = stringResource(Res.string.developer_blog_tagline),
                     onClick = {
-                        uriHandler.openUri("https://maxrave.dev")
+                        uriHandler.openUri("https://magma-portfolio-sigma.vercel.app")
                     },
                 )
                 if (getPlatform() == Platform.Android) {
