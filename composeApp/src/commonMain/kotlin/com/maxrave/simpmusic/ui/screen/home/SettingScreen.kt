@@ -2327,7 +2327,7 @@ fun SettingScreen(
                     title = stringResource(Res.string.buy_me_a_coffee),
                     subtitle = stringResource(Res.string.donation),
                     onClick = {
-                        uriHandler.openUri("https://github.com/sponsors/maxrave-dev")
+                        uriHandler.openUri("https://files.catbox.moe/plkn0t.jpg")
                     },
                 )
                 SettingItem(
