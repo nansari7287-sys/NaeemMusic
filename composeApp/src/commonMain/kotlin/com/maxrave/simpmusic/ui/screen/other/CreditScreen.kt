@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
@@ -40,7 +41,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.maxrave.simpmusic.expect.openUrl
 import com.maxrave.simpmusic.ui.component.RippleIconButton
-import com.maxrave.simpmusic.ui.icon.ArrowBackIosNew
 import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.ui.theme.typo
 import com.maxrave.simpmusic.utils.VersionManager
@@ -60,6 +60,7 @@ fun CreditScreen(
     navController: NavController,
 ) {
     val hazeState = rememberHazeState()
+
     Column(
         modifier =
             Modifier
@@ -70,50 +71,87 @@ fun CreditScreen(
                 .hazeSource(state = hazeState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+
         Spacer(modifier = Modifier.height(30.dp))
 
-        // App icon
+        // App Icon
         Image(
             painter = painterResource(Res.drawable.app_icon),
-            contentDescription = "App Icon",
+            contentDescription = "Naeem Music App Icon",
             modifier =
                 Modifier
                     .size(150.dp)
                     .clip(CircleShape),
         )
 
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(25.dp))
 
-        // App name
+        // App Name
         Text(
             text = stringResource(Res.string.app_name),
             style = typo().titleLarge,
-            fontSize = 22.sp,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
         )
+
+        Spacer(modifier = Modifier.height(4.dp))
 
         // Version
         Text(
-            text = stringResource(Res.string.version_format, VersionManager.getVersionName()),
+            text = stringResource(
+                Res.string.version_format,
+                VersionManager.getVersionName(),
+            ),
             style = typo().bodySmall,
             fontSize = 13.sp,
         )
 
-        // Developer - clickable, opens dev blog
+        Spacer(modifier = Modifier.height(10.dp))
+
+        // Creator
         Text(
-            text = stringResource(Res.string.maxrave_dev),
+            text = "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎",
             style = typo().bodyMedium,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
             textDecoration = TextDecoration.Underline,
             modifier =
                 Modifier.clickable {
-                    openUrl("https://magma-portfolio-sigma.vercel.app")
+                    openUrl("https://www.instagram.com/drakoxnaeem")
                 },
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
-        // App description
         Text(
-            text = stringResource(Res.string.credit_app),
+            text = "Official Creator & Developer",
+            style = typo().bodySmall,
+            fontSize = 12.sp,
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // About / Description
+        Text(
+            text = "𝑵𝒂𝒆𝒆𝒎 𝑴𝒖𝒔𝒊𝒄",
+            style = typo().titleMedium,
+            fontSize = 19.sp,
+            fontWeight = FontWeight.Bold,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 25.dp),
+            textAlign = TextAlign.Start,
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text =
+                "A modern music application designed for a clean, "
+                    + "fast and immersive listening experience.\n\n"
+                    + "Built and customized under the "
+                    + "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎 brand.",
             style = typo().bodyMedium,
             modifier =
                 Modifier
@@ -122,91 +160,148 @@ fun CreditScreen(
             textAlign = TextAlign.Start,
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-            // Website button
+        CompositionLocalProvider(
+            LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
+        ) {
+
+            // Instagram
             TextButton(
                 onClick = {
-                    openUrl("https://magma-portfolio-sigma.vercel.app")
+                    openUrl("https://www.instagram.com/drakoxnaeem")
                 },
                 modifier =
                     Modifier
                         .align(Alignment.Start)
                         .padding(horizontal = 25.dp)
-                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
-            ) {
-                Text(text = stringResource(Res.string.website))
-            }
-
-            // Developer blog button
-            TextButton(
-                onClick = {
-                    openUrl("https://github.com/themagmalord333-oss")
-                },
-                modifier =
-                    Modifier
-                        .align(Alignment.Start)
-                        .padding(horizontal = 25.dp)
-                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
+                        .defaultMinSize(
+                            minHeight = 1.dp,
+                            minWidth = 1.dp,
+                        ),
             ) {
                 Column {
-                    Text(text = stringResource(Res.string.developer_blog))
                     Text(
-                        text = stringResource(Res.string.developer_blog_tagline),
+                        text = "Instagram",
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                        text = "@drakoxnaeem",
                         style = typo().bodySmall,
                     )
                 }
             }
 
-            // GitHub button
+            // Facebook
             TextButton(
                 onClick = {
-                    openUrl("https://github.com/themagmalord333-oss")
+                    openUrl("https://www.facebook.com/share/1986k9AkPX/")
                 },
                 modifier =
                     Modifier
                         .align(Alignment.Start)
                         .padding(horizontal = 25.dp)
-                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
+                        .defaultMinSize(
+                            minHeight = 1.dp,
+                            minWidth = 1.dp,
+                        ),
             ) {
-                Text(text = stringResource(Res.string.github))
+                Column {
+                    Text(
+                        text = "Facebook",
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                        text = "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎",
+                        style = typo().bodySmall,
+                    )
+                }
             }
 
-            // Issue tracker button
+            // Email
             TextButton(
                 onClick = {
-                    openUrl("https://github.com/themagmalord333-oss")
+                    openUrl("mailto:nansari7287@gmail.com")
                 },
                 modifier =
                     Modifier
                         .align(Alignment.Start)
                         .padding(horizontal = 25.dp)
-                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
+                        .defaultMinSize(
+                            minHeight = 1.dp,
+                            minWidth = 1.dp,
+                        ),
             ) {
-                Text(text = stringResource(Res.string.issue_tracker))
+                Column {
+                    Text(
+                        text = "Email",
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                        text = "nansari7287@gmail.com",
+                        style = typo().bodySmall,
+                    )
+                }
             }
 
-            // Buy me a coffee button
+            // GitHub / Open-source project
             TextButton(
                 onClick = {
-                    openUrl("https://github.com/themagmalord333-oss")
+                    openUrl("https://github.com/nansari7287-sys/NaeemMusic")
                 },
                 modifier =
                     Modifier
                         .align(Alignment.Start)
                         .padding(horizontal = 25.dp)
-                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
+                        .defaultMinSize(
+                            minHeight = 1.dp,
+                            minWidth = 1.dp,
+                        ),
             ) {
-                Text(text = stringResource(Res.string.buy_me_a_coffee))
+                Column {
+                    Text(
+                        text = "Naeem Music GitHub",
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                        text = "Source code & project updates",
+                        style = typo().bodySmall,
+                    )
+                }
+            }
+
+            // Original project credits
+            TextButton(
+                onClick = {
+                    openUrl("https://github.com/maxrave-dev/SimpMusic")
+                },
+                modifier =
+                    Modifier
+                        .align(Alignment.Start)
+                        .padding(horizontal = 25.dp)
+                        .defaultMinSize(
+                            minHeight = 1.dp,
+                            minWidth = 1.dp,
+                        ),
+            ) {
+                Column {
+                    Text(
+                        text = "Open-source Credits",
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                        text = "Original SimpMusic project",
+                        style = typo().bodySmall,
+                    )
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        // Copyright text
+        // Copyright
         Text(
-            text = stringResource(Res.string.copyright),
+            text = "©2026 𝑵𝒂𝒆𝒆𝒎 𝑴𝒖𝒔𝒊𝒄",
             style = typo().bodySmall,
             modifier =
                 Modifier
@@ -215,13 +310,17 @@ fun CreditScreen(
             textAlign = TextAlign.Start,
         )
 
-        // Bottom spacing
         Spacer(modifier = Modifier.height(200.dp))
     }
+
+    // Top App Bar
     TopAppBar(
         modifier =
             Modifier
-                .hazeEffect(state = hazeState, style = HazeMaterials.ultraThin()) {
+                .hazeEffect(
+                    state = hazeState,
+                    style = HazeMaterials.ultraThin(),
+                ) {
                     blurEnabled = true
                 },
         title = {
@@ -234,18 +333,22 @@ fun CreditScreen(
                         .fillMaxWidth()
                         .wrapContentHeight(
                             align = Alignment.CenterVertically,
-                        ).basicMarquee(
+                        )
+                        .basicMarquee(
                             iterations = Int.MAX_VALUE,
-                            animationMode = MarqueeAnimationMode.Immediately,
-                        ).focusable(),
+                            animationMode =
+                                MarqueeAnimationMode.Immediately,
+                        )
+                        .focusable(),
             )
         },
         navigationIcon = {
-            Box(Modifier.padding(horizontal = 5.dp)) {
+            Box(
+                Modifier.padding(horizontal = 5.dp),
+            ) {
                 RippleIconButton(
                     SimpIcons.ArrowBackIosNew,
-                    Modifier
-                        .size(32.dp),
+                    Modifier.size(32.dp),
                     true,
                     tint = MaterialTheme.colorScheme.onSurface,
                 ) {
