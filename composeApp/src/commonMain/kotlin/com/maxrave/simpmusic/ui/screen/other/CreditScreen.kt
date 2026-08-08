@@ -5,7 +5,6 @@ import androidx.compose.foundation.MarqueeAnimationMode
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -21,7 +20,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -39,8 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.maxrave.simpmusic.expect.openUrl
-import com.maxrave.simpmusic.ui.component.RippleIconButton
-import com.maxrave.simpmusic.ui.icon.SimpIcons
 import com.maxrave.simpmusic.ui.theme.typo
 import com.maxrave.simpmusic.utils.VersionManager
 import dev.chrisbanes.haze.hazeEffect
@@ -242,7 +238,7 @@ fun CreditScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Copyright text
+        // Copyright
         Text(
             text = stringResource(Res.string.copyright),
             style = typo().bodySmall,
@@ -284,20 +280,6 @@ fun CreditScreen(
                         )
                         .focusable(),
             )
-        },
-        navigationIcon = {
-            Box(
-                Modifier.padding(horizontal = 5.dp),
-            ) {
-                RippleIconButton(
-                    SimpIcons.ArrowBackIosNew,
-                    Modifier.size(32.dp),
-                    true,
-                    tint = MaterialTheme.colorScheme.onSurface,
-                ) {
-                    navController.navigateUp()
-                }
-            }
         },
         colors =
             TopAppBarDefaults.topAppBarColors(
