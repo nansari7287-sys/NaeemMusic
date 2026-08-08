@@ -32,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
@@ -71,30 +70,26 @@ fun CreditScreen(
                 .hazeSource(state = hazeState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-
         Spacer(modifier = Modifier.height(30.dp))
 
-        // App Icon
+        // App icon
         Image(
             painter = painterResource(Res.drawable.app_icon),
-            contentDescription = "Naeem Music App Icon",
+            contentDescription = "App Icon",
             modifier =
                 Modifier
                     .size(150.dp)
                     .clip(CircleShape),
         )
 
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
-        // App Name
+        // App name
         Text(
             text = stringResource(Res.string.app_name),
             style = typo().titleLarge,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
+            fontSize = 22.sp,
         )
-
-        Spacer(modifier = Modifier.height(4.dp))
 
         // Version
         Text(
@@ -106,52 +101,22 @@ fun CreditScreen(
             fontSize = 13.sp,
         )
 
-        Spacer(modifier = Modifier.height(10.dp))
-
-        // Creator
+        // Developer
         Text(
-            text = "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎",
+            text = stringResource(Res.string.maxrave_dev),
             style = typo().bodyMedium,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold,
             textDecoration = TextDecoration.Underline,
             modifier =
                 Modifier.clickable {
-                    openUrl("https://www.instagram.com/drakoxnaeem")
+                    openUrl("https://magma-portfolio-sigma.vercel.app")
                 },
         )
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
+        // App description
         Text(
-            text = "Official Creator & Developer",
-            style = typo().bodySmall,
-            fontSize = 12.sp,
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // About / Description
-        Text(
-            text = "𝑵𝒂𝒆𝒆𝒎 𝑴𝒖𝒔𝒊𝒄",
-            style = typo().titleMedium,
-            fontSize = 19.sp,
-            fontWeight = FontWeight.Bold,
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 25.dp),
-            textAlign = TextAlign.Start,
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text =
-                "A modern music application designed for a clean, "
-                    + "fast and immersive listening experience.\n\n"
-                    + "Built and customized under the "
-                    + "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎 brand.",
+            text = stringResource(Res.string.credit_app),
             style = typo().bodyMedium,
             modifier =
                 Modifier
@@ -160,16 +125,34 @@ fun CreditScreen(
             textAlign = TextAlign.Start,
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         CompositionLocalProvider(
             LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
         ) {
-
-            // Instagram
+            // Website button
             TextButton(
                 onClick = {
-                    openUrl("https://www.instagram.com/drakoxnaeem")
+                    openUrl("https://magma-portfolio-sigma.vercel.app")
+                },
+                modifier =
+                    Modifier
+                        .align(Alignment.Start)
+                        .padding(horizontal = 25.dp)
+                        .defaultMinSize(
+                            minHeight = 1.dp,
+                            minWidth = 1.dp,
+                        ),
+            ) {
+                Text(
+                    text = stringResource(Res.string.website),
+                )
+            }
+
+            // Developer blog button
+            TextButton(
+                onClick = {
+                    openUrl("https://github.com/themagmalord333-oss")
                 },
                 modifier =
                     Modifier
@@ -182,20 +165,22 @@ fun CreditScreen(
             ) {
                 Column {
                     Text(
-                        text = "Instagram",
-                        fontWeight = FontWeight.SemiBold,
+                        text = stringResource(Res.string.developer_blog),
                     )
+
                     Text(
-                        text = "@drakoxnaeem",
+                        text = stringResource(
+                            Res.string.developer_blog_tagline,
+                        ),
                         style = typo().bodySmall,
                     )
                 }
             }
 
-            // Facebook
+            // GitHub button
             TextButton(
                 onClick = {
-                    openUrl("https://www.facebook.com/share/1986k9AkPX/")
+                    openUrl("https://github.com/themagmalord333-oss")
                 },
                 modifier =
                     Modifier
@@ -206,22 +191,15 @@ fun CreditScreen(
                             minWidth = 1.dp,
                         ),
             ) {
-                Column {
-                    Text(
-                        text = "Facebook",
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Text(
-                        text = "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎",
-                        style = typo().bodySmall,
-                    )
-                }
+                Text(
+                    text = stringResource(Res.string.github),
+                )
             }
 
-            // Email
+            // Issue tracker button
             TextButton(
                 onClick = {
-                    openUrl("mailto:nansari7287@gmail.com")
+                    openUrl("https://github.com/themagmalord333-oss")
                 },
                 modifier =
                     Modifier
@@ -232,22 +210,15 @@ fun CreditScreen(
                             minWidth = 1.dp,
                         ),
             ) {
-                Column {
-                    Text(
-                        text = "Email",
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Text(
-                        text = "nansari7287@gmail.com",
-                        style = typo().bodySmall,
-                    )
-                }
+                Text(
+                    text = stringResource(Res.string.issue_tracker),
+                )
             }
 
-            // GitHub / Open-source project
+            // Buy me a coffee button
             TextButton(
                 onClick = {
-                    openUrl("https://github.com/nansari7287-sys/NaeemMusic")
+                    openUrl("https://github.com/themagmalord333-oss")
                 },
                 modifier =
                     Modifier
@@ -258,71 +229,39 @@ fun CreditScreen(
                             minWidth = 1.dp,
                         ),
             ) {
-                Column {
-                    Text(
-                        text = "Naeem Music GitHub",
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Text(
-                        text = "Source code & project updates",
-                        style = typo().bodySmall,
-                    )
-                }
-            }
-
-            // Original project credits
-            TextButton(
-                onClick = {
-                    openUrl("https://github.com/maxrave-dev/SimpMusic")
-                },
-                modifier =
-                    Modifier
-                        .align(Alignment.Start)
-                        .padding(horizontal = 25.dp)
-                        .defaultMinSize(
-                            minHeight = 1.dp,
-                            minWidth = 1.dp,
-                        ),
-            ) {
-                Column {
-                    Text(
-                        text = "Open-source Credits",
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Text(
-                        text = "Original SimpMusic project",
-                        style = typo().bodySmall,
-                    )
-                }
+                Text(
+                    text = stringResource(Res.string.buy_me_a_coffee),
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        // Copyright
+        // Copyright text
         Text(
-            text = "©2026 𝑵𝒂𝒆𝒆𝒎 𝑴𝒖𝒔𝒊𝒄",
+            text = stringResource(Res.string.copyright),
             style = typo().bodySmall,
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 25.dp, vertical = 5.dp),
+                    .padding(
+                        horizontal = 25.dp,
+                        vertical = 5.dp,
+                    ),
             textAlign = TextAlign.Start,
         )
 
         Spacer(modifier = Modifier.height(200.dp))
     }
 
-    // Top App Bar
     TopAppBar(
         modifier =
-            Modifier
-                .hazeEffect(
-                    state = hazeState,
-                    style = HazeMaterials.ultraThin(),
-                ) {
-                    blurEnabled = true
-                },
+            Modifier.hazeEffect(
+                state = hazeState,
+                style = HazeMaterials.ultraThin(),
+            ) {
+                blurEnabled = true
+            },
         title = {
             Text(
                 text = stringResource(Res.string.app_name),
@@ -336,8 +275,7 @@ fun CreditScreen(
                         )
                         .basicMarquee(
                             iterations = Int.MAX_VALUE,
-                            animationMode =
-                                MarqueeAnimationMode.Immediately,
+                            animationMode = MarqueeAnimationMode.Immediately,
                         )
                         .focusable(),
             )
@@ -347,7 +285,7 @@ fun CreditScreen(
                 Modifier.padding(horizontal = 5.dp),
             ) {
                 RippleIconButton(
-                    SimpIcons.ArrowBackIosNew,
+                    SimpIcons.ArrowBack,
                     Modifier.size(32.dp),
                     true,
                     tint = MaterialTheme.colorScheme.onSurface,
