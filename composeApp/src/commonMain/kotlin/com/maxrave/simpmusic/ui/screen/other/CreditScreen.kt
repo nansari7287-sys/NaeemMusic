@@ -52,7 +52,10 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import simpmusic.composeapp.generated.resources.*
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalHazeMaterialsApi::class,
+)
 @Composable
 fun CreditScreen(
     paddingValues: PaddingValues,
@@ -93,10 +96,11 @@ fun CreditScreen(
 
         // Version
         Text(
-            text = stringResource(
-                Res.string.version_format,
-                VersionManager.getVersionName(),
-            ),
+            text =
+                stringResource(
+                    Res.string.version_format,
+                    VersionManager.getVersionName(),
+                ),
             style = typo().bodySmall,
             fontSize = 13.sp,
         )
@@ -169,9 +173,10 @@ fun CreditScreen(
                     )
 
                     Text(
-                        text = stringResource(
-                            Res.string.developer_blog_tagline,
-                        ),
+                        text =
+                            stringResource(
+                                Res.string.developer_blog_tagline,
+                            ),
                         style = typo().bodySmall,
                     )
                 }
@@ -285,7 +290,7 @@ fun CreditScreen(
                 Modifier.padding(horizontal = 5.dp),
             ) {
                 RippleIconButton(
-                    SimpIcons.ArrowBack,
+                    SimpIcons.ArrowBackIosNew,
                     Modifier.size(32.dp),
                     true,
                     tint = MaterialTheme.colorScheme.onSurface,
