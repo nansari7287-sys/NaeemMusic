@@ -23,17 +23,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
@@ -47,7 +39,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -70,14 +61,14 @@ import simpmusic.composeapp.generated.resources.app_icon
 import simpmusic.composeapp.generated.resources.version_format
 
 // ------------------------------------------------------------------------
-// DATA CLASSES FOR PREMIUM UI
+// DATA STRUCTURES FOR APP CREDITS & ARCHITECTURE
 // ------------------------------------------------------------------------
 
 data class DeveloperProfile(
     val name: String,
     val role: String,
     val url: String,
-    val icon: ImageVector,
+    val symbol: String,
 )
 
 data class OpenSourceLibrary(
@@ -90,25 +81,25 @@ data class OpenSourceLibrary(
 data class SocialLink(
     val platform: String,
     val url: String,
-    val icon: ImageVector,
+    val symbol: String,
 )
 
 // ------------------------------------------------------------------------
-// DATA LISTS
+// DATA REPOSITORY COLLECTIONS
 // ------------------------------------------------------------------------
 
 val developerTeam = listOf(
     DeveloperProfile(
         name = "DrakoXNaeem",
-        role = "Lead Developer & App Maintainer",
+        role = "Lead System Architect & Developer",
         url = "https://magma-portfolio-sigma.vercel.app",
-        icon = Icons.Filled.Person,
+        symbol = "👑",
     ),
     DeveloperProfile(
         name = "Maxrave",
-        role = "Original Base Creator",
+        role = "Original SimpMusic Base Creator",
         url = "https://github.com/maxrave-dev",
-        icon = Icons.Filled.Star,
+        symbol = "⭐",
     ),
 )
 
@@ -120,13 +111,13 @@ val usedLibraries = listOf(
         url = "https://www.jetbrains.com/lp/compose-multiplatform/",
     ),
     OpenSourceLibrary(
-        name = "Haze (Glassmorphism)",
+        name = "Haze (Glassmorphism Effects)",
         author = "Chris Banes",
         license = "Apache License 2.0",
         url = "https://github.com/chrisbanes/haze",
     ),
     OpenSourceLibrary(
-        name = "Ktor Network Client",
+        name = "Ktor Network Framework",
         author = "JetBrains",
         license = "Apache License 2.0",
         url = "https://ktor.io/",
@@ -138,7 +129,7 @@ val usedLibraries = listOf(
         url = "https://coil-kt.github.io/coil/",
     ),
     OpenSourceLibrary(
-        name = "Kotlin Coroutines",
+        name = "Kotlin Coroutines & Flow",
         author = "JetBrains",
         license = "Apache License 2.0",
         url = "https://kotlinlang.org/docs/coroutines-overview.html",
@@ -147,19 +138,29 @@ val usedLibraries = listOf(
 
 val socialLinks = listOf(
     SocialLink(
-        platform = "Official Website",
+        platform = "Official Portfolio Website",
         url = "https://magma-portfolio-sigma.vercel.app",
-        icon = Icons.Filled.Info,
+        symbol = "🌐",
     ),
     SocialLink(
-        platform = "GitHub Repository",
+        platform = "GitHub Repositories",
         url = "https://github.com/nansari7287-sys",
-        icon = Icons.Filled.Code,
+        symbol = "💻",
+    ),
+    SocialLink(
+        platform = "Instagram Portfolio",
+        url = "https://instagram.com",
+        symbol = "📸",
+    ),
+    SocialLink(
+        platform = "Facebook Profile",
+        url = "https://facebook.com",
+        symbol = "📘",
     ),
 )
 
 // ------------------------------------------------------------------------
-// MAIN COMPOSABLE SCREEN
+// MAIN COMPOSABLE SCREEN IMPLEMENTATION
 // ------------------------------------------------------------------------
 
 @OptIn(
@@ -214,7 +215,7 @@ fun CreditScreen(
             FooterSection(paddingValues = paddingValues)
         }
 
-        // Top App Bar implementation with Haze Blur
+        // Custom Top App Bar with Blur Effect
         TopAppBar(
             modifier = Modifier.hazeEffect(
                 state = hazeState,
@@ -224,7 +225,7 @@ fun CreditScreen(
             },
             title = {
                 Text(
-                    text = "Credits & Info",
+                    text = "Naeem Music - Credits",
                     style = typo().titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     maxLines = 1,
                     modifier = Modifier
@@ -239,10 +240,11 @@ fun CreditScreen(
             },
             navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Navigate Back",
-                        tint = MaterialTheme.colorScheme.onBackground,
+                    Text(
+                        text = "←",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground,
                     )
                 }
             },
@@ -258,7 +260,7 @@ fun CreditScreen(
 }
 
 // ------------------------------------------------------------------------
-// MODULAR COMPOSABLE SECTIONS
+// MODULAR SUB-COMPONENTS
 // ------------------------------------------------------------------------
 
 @Composable
@@ -302,7 +304,7 @@ fun AppHeaderSection() {
         Spacer(modifier = Modifier.height(16.dp))
         
         Text(
-            text = "A modern, cross-platform music streaming\nexperience built with high performance UI.",
+            text = "A high performance professional cross-platform music streaming client engineered with security and precision.",
             style = typo().bodyMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
@@ -319,12 +321,7 @@ fun DeveloperSectionTitle() {
             .padding(horizontal = 24.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            imageVector = Icons.Filled.Favorite,
-            contentDescription = "Developers",
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(20.dp),
-        )
+        Text(text = "👑", fontSize = 18.sp)
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = "Developed By",
@@ -362,11 +359,7 @@ fun DeveloperItemCard(developer: DeveloperProfile) {
                     ),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    imageVector = developer.icon,
-                    contentDescription = developer.name,
-                    tint = MaterialTheme.colorScheme.primary,
-                )
+                Text(text = developer.symbol, fontSize = 22.sp)
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column {
@@ -394,12 +387,7 @@ fun SocialLinksSectionTitle() {
             .padding(horizontal = 24.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            imageVector = Icons.Filled.Info,
-            contentDescription = "Links",
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(20.dp),
-        )
+        Text(text = "🌐", fontSize = 18.sp)
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = "Connect With Us",
@@ -427,12 +415,7 @@ fun SocialLinkItemCard(socialLink: SocialLink) {
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(
-                    imageVector = socialLink.icon,
-                    contentDescription = socialLink.platform,
-                    tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
-                    modifier = Modifier.size(22.dp),
-                )
+                Text(text = socialLink.symbol, fontSize = 22.sp)
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = socialLink.platform,
@@ -452,12 +435,7 @@ fun OpenSourceSectionTitle() {
             .padding(horizontal = 24.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            imageVector = Icons.Filled.Code,
-            contentDescription = "Open Source",
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(20.dp),
-        )
+        Text(text = "📦", fontSize = 18.sp)
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = "Open Source Libraries",
@@ -519,7 +497,7 @@ fun FooterSection(paddingValues: PaddingValues) {
             .padding(bottom = paddingValues.calculateBottomPadding() + 40.dp),
     ) {
         Text(
-            text = "Made with ❤️ in India",
+            text = "Engineered with Precision & Power",
             style = typo().labelMedium,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
         )
@@ -531,10 +509,9 @@ fun FooterSection(paddingValues: PaddingValues) {
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "This app is intended for personal and educational use.",
+            text = "NaeemMusic Advanced Production Build",
             style = typo().labelSmall,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
         )
     }
 }
-
