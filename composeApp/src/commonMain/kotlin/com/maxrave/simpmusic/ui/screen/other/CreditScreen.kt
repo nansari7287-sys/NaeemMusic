@@ -2,26 +2,41 @@ package com.maxrave.simpmusic.ui.screen.other
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.MarqueeAnimationMode
+import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -32,6 +47,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
@@ -48,7 +65,102 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.rememberHazeState
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import simpmusic.composeapp.generated.resources.*
+import simpmusic.composeapp.generated.resources.Res
+import simpmusic.composeapp.generated.resources.app_icon
+import simpmusic.composeapp.generated.resources.version_format
+
+// ------------------------------------------------------------------------
+// DATA CLASSES FOR PREMIUM UI
+// ------------------------------------------------------------------------
+
+data class DeveloperProfile(
+    val name: String,
+    val role: String,
+    val url: String,
+    val icon: ImageVector,
+)
+
+data class OpenSourceLibrary(
+    val name: String,
+    val author: String,
+    val license: String,
+    val url: String,
+)
+
+data class SocialLink(
+    val platform: String,
+    val url: String,
+    val icon: ImageVector,
+)
+
+// ------------------------------------------------------------------------
+// DATA LISTS
+// ------------------------------------------------------------------------
+
+val developerTeam = listOf(
+    DeveloperProfile(
+        name = "DrakoXNaeem",
+        role = "Lead Developer & App Maintainer",
+        url = "https://magma-portfolio-sigma.vercel.app",
+        icon = Icons.Filled.Person,
+    ),
+    DeveloperProfile(
+        name = "Maxrave",
+        role = "Original Base Creator",
+        url = "https://github.com/maxrave-dev",
+        icon = Icons.Filled.Star,
+    ),
+)
+
+val usedLibraries = listOf(
+    OpenSourceLibrary(
+        name = "Compose Multiplatform",
+        author = "JetBrains",
+        license = "Apache License 2.0",
+        url = "https://www.jetbrains.com/lp/compose-multiplatform/",
+    ),
+    OpenSourceLibrary(
+        name = "Haze (Glassmorphism)",
+        author = "Chris Banes",
+        license = "Apache License 2.0",
+        url = "https://github.com/chrisbanes/haze",
+    ),
+    OpenSourceLibrary(
+        name = "Ktor Network Client",
+        author = "JetBrains",
+        license = "Apache License 2.0",
+        url = "https://ktor.io/",
+    ),
+    OpenSourceLibrary(
+        name = "Coil Image Loader",
+        author = "Colin White",
+        license = "Apache License 2.0",
+        url = "https://coil-kt.github.io/coil/",
+    ),
+    OpenSourceLibrary(
+        name = "Kotlin Coroutines",
+        author = "JetBrains",
+        license = "Apache License 2.0",
+        url = "https://kotlinlang.org/docs/coroutines-overview.html",
+    ),
+)
+
+val socialLinks = listOf(
+    SocialLink(
+        platform = "Official Website",
+        url = "https://magma-portfolio-sigma.vercel.app",
+        icon = Icons.Filled.Info,
+    ),
+    SocialLink(
+        platform = "GitHub Repository",
+        url = "https://github.com/nansari7287-sys",
+        icon = Icons.Filled.Code,
+    ),
+)
+
+// ------------------------------------------------------------------------
+// MAIN COMPOSABLE SCREEN
+// ------------------------------------------------------------------------
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -69,85 +181,40 @@ fun CreditScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.height(paddingValues.calculateTopPadding() + 94.dp))
+            Spacer(modifier = Modifier.height(paddingValues.calculateTopPadding() + 80.dp))
 
-            Image(
-                painter = painterResource(Res.drawable.app_icon),
-                contentDescription = "App Icon",
-                modifier = Modifier
-                    .size(150.dp)
-                    .clip(CircleShape),
-            )
+            AppHeaderSection()
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            Text(
-                text = "Naeem Music",
-                style = typo().titleLarge,
-                fontSize = 24.sp,
-            )
-
-            Text(
-                text = stringResource(
-                    Res.string.version_format,
-                    VersionManager.getVersionName(),
-                ),
-                style = typo().bodySmall,
-                fontSize = 13.sp,
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Text(
-                text = "Developed by DrakoXNaeem",
-                style = typo().bodyMedium,
-                textDecoration = TextDecoration.Underline,
-                modifier = Modifier.clickable {
-                    openUrl("https://magma-portfolio-sigma.vercel.app")
-                },
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = "A professional cross-platform music streaming experience.",
-                style = typo().bodyMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 25.dp),
-                textAlign = TextAlign.Start,
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            CompositionLocalProvider(
-                LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
-            ) {
-                TextButton(
-                    onClick = { openUrl("https://magma-portfolio-sigma.vercel.app") },
-                    modifier = Modifier
-                        .align(Alignment.Start)
-                        .padding(horizontal = 25.dp)
-                        .defaultMinSize(minHeight = 1.dp, minWidth = 1.dp),
-                ) {
-                    Text(text = "🌐 Official Website")
-                }
+            DeveloperSectionTitle()
+            
+            developerTeam.forEach { developer ->
+                DeveloperItemCard(developer = developer)
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            Text(
-                text = "© 2026 Naeem. All rights reserved.",
-                style = typo().bodySmall,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 25.dp, vertical = 5.dp),
-                textAlign = TextAlign.Start,
-            )
+            SocialLinksSectionTitle()
+            
+            socialLinks.forEach { link ->
+                SocialLinkItemCard(socialLink = link)
+            }
 
-            Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding() + 200.dp))
+            Spacer(modifier = Modifier.height(32.dp))
+
+            OpenSourceSectionTitle()
+            
+            usedLibraries.forEach { library ->
+                OpenSourceLibraryCard(library = library)
+            }
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            FooterSection(paddingValues = paddingValues)
         }
 
+        // Top App Bar implementation with Haze Blur
         TopAppBar(
             modifier = Modifier.hazeEffect(
                 state = hazeState,
@@ -157,8 +224,8 @@ fun CreditScreen(
             },
             title = {
                 Text(
-                    text = "Naeem Music",
-                    style = typo().titleMedium,
+                    text = "Credits & Info",
+                    style = typo().titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     maxLines = 1,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -172,9 +239,10 @@ fun CreditScreen(
             },
             navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
-                    Text(
-                        text = "←",
-                        fontSize = 22.sp,
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Navigate Back",
+                        tint = MaterialTheme.colorScheme.onBackground,
                     )
                 }
             },
@@ -188,3 +256,285 @@ fun CreditScreen(
         )
     }
 }
+
+// ------------------------------------------------------------------------
+// MODULAR COMPOSABLE SECTIONS
+// ------------------------------------------------------------------------
+
+@Composable
+fun AppHeaderSection() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Card(
+            shape = CircleShape,
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+            modifier = Modifier.size(140.dp),
+        ) {
+            Image(
+                painter = painterResource(Res.drawable.app_icon),
+                contentDescription = "Naeem Music App Icon",
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = "Naeem Music",
+            style = typo().titleLarge.copy(fontWeight = FontWeight.ExtraBold),
+            fontSize = 28.sp,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+
+        Spacer(modifier = Modifier.height(6.dp))
+
+        Text(
+            text = stringResource(
+                Res.string.version_format,
+                VersionManager.getVersionName(),
+            ),
+            style = typo().labelLarge,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+        )
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        Text(
+            text = "A modern, cross-platform music streaming\nexperience built with high performance UI.",
+            style = typo().bodyMedium,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+            modifier = Modifier.padding(horizontal = 24.dp),
+        )
+    }
+}
+
+@Composable
+fun DeveloperSectionTitle() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Favorite,
+            contentDescription = "Developers",
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(20.dp),
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = "Developed By",
+            style = typo().titleMedium.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+    }
+}
+
+@Composable
+fun DeveloperItemCard(developer: DeveloperProfile) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 6.dp)
+            .clickable { openUrl(developer.url) },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        shape = CircleShape,
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = developer.icon,
+                    contentDescription = developer.name,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(
+                    text = developer.name,
+                    style = typo().titleSmall.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = developer.role,
+                    style = typo().bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun SocialLinksSectionTitle() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Info,
+            contentDescription = "Links",
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(20.dp),
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = "Connect With Us",
+            style = typo().titleMedium.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+    }
+}
+
+@Composable
+fun SocialLinkItemCard(socialLink: SocialLink) {
+    CompositionLocalProvider(
+        LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
+    ) {
+        TextButton(
+            onClick = { openUrl(socialLink.url) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 2.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
+            shape = RoundedCornerShape(12.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = socialLink.icon,
+                    contentDescription = socialLink.platform,
+                    tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                    modifier = Modifier.size(22.dp),
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    text = socialLink.platform,
+                    style = typo().bodyMedium.copy(fontWeight = FontWeight.Medium),
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun OpenSourceSectionTitle() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Code,
+            contentDescription = "Open Source",
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(20.dp),
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = "Open Source Libraries",
+            style = typo().titleMedium.copy(fontWeight = FontWeight.Bold),
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+    }
+}
+
+@Composable
+fun OpenSourceLibraryCard(library: OpenSourceLibrary) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 6.dp)
+            .clickable { openUrl(library.url) },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.Transparent,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp, horizontal = 8.dp),
+        ) {
+            Text(
+                text = library.name,
+                style = typo().titleSmall.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = "By ${library.author}",
+                    style = typo().bodySmall,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                )
+                Text(
+                    text = library.license,
+                    style = typo().bodySmall,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun FooterSection(paddingValues: PaddingValues) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = paddingValues.calculateBottomPadding() + 40.dp),
+    ) {
+        Text(
+            text = "Made with ❤️ in India",
+            style = typo().labelMedium,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "© 2026 Naeem (DrakoXNaeem). All rights reserved.",
+            style = typo().labelSmall,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "This app is intended for personal and educational use.",
+            style = typo().labelSmall,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.4f),
+        )
+    }
+}
+
