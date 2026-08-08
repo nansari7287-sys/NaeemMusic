@@ -1,20 +1,16 @@
 package com.maxrave.simpmusic.ui.screen.other
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.MarqueeAnimationMode
-import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,13 +22,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -41,8 +39,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -63,17 +59,6 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import simpmusic.composeapp.generated.resources.*
 
-/**
- * ============================================================================
- * Project: Naeem Music (Custom Fork of SimpMusic)
- * Architect & Developer: DrakoXNaeem (Naeem Ansari)
- * File: CreditScreen.kt
- * Description: Production-ready fully styled credit & about screen featuring 
- * professional gradients, interactive social cards, secure external links, 
- * and custom Material 3 UI design components.
- * ============================================================================
- */
-
 @OptIn(
     ExperimentalMaterial3Api::class,
     ExperimentalHazeMaterialsApi::class,
@@ -84,255 +69,146 @@ fun CreditScreen(
     navController: NavController,
 ) {
     val hazeState = rememberHazeState()
-    val scrollState = rememberScrollState()
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF0F051D),
-                        Color(0xFF1A0B2E),
-                        Color(0xFF05020A)
-                    )
-                )
-            )
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .hazeSource(state = hazeState)
-                .verticalScroll(scrollState),
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // Top spacing to account for TopAppBar overlay
-            Spacer(modifier = Modifier.height(paddingValues.calculateTopPadding() + 90.dp))
+            Spacer(modifier = Modifier.height(paddingValues.calculateTopPadding() + 80.dp))
 
-            // App Icon Container with Glow/Border Styling
-            Box(
-                modifier = Modifier
-                    .size(160.dp)
-                    .clip(CircleShape)
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(Color(0xFF00E5FF), Color(0xFFBD00FF), Color(0xFFFF007A))
-                        )
-                    )
-                    .padding(3.dp),
-                contentAlignment = Alignment.Center
+            // Premium App Icon Section with Shadow
+            Card(
+                shape = CircleShape,
+                elevation = CardDefaults.cardElevation(defaultElevation = 12.dp),
+                modifier = Modifier.size(150.dp)
             ) {
                 Image(
                     painter = painterResource(Res.drawable.app_icon),
                     contentDescription = "Naeem Music App Icon",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape),
+                    modifier = Modifier.fillMaxSize()
                 )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Professional App Title Branding
+            // App Title
             Text(
                 text = "Naeem Music",
-                style = typo().titleLarge,
+                style = typo().titleLarge.copy(fontWeight = FontWeight.ExtraBold),
                 fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            // App Version Badge
-            Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = Color(0xFF2A1B4E),
-                modifier = Modifier.padding(vertical = 4.dp)
+            // Version Info
+            Text(
+                text = stringResource(
+                    Res.string.version_format,
+                    VersionManager.getVersionName(),
+                ),
+                style = typo().labelLarge,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Professional Description Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "A professional cross-platform music streaming experience crafted with high performance, beautiful UI, and top-tier security.",
+                        style = typo().bodyMedium.copy(lineHeight = 22.sp),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Developed & Maintained by",
+                        style = typo().labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                    )
+
+                    Text(
+                        text = "DrakoXNaeem",
+                        style = typo().titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .clickable { openUrl("https://magma-portfolio-sigma.vercel.app") }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Social Links Section
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    text = stringResource(
-                        Res.string.version_format,
-                        VersionManager.getVersionName(),
-                    ),
-                    style = typo().bodySmall,
-                    fontSize = 13.sp,
-                    color = Color(0xFF00E5FF),
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    text = "Connect with the Developer",
+                    style = typo().titleSmall.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(bottom = 12.dp, start = 8.dp),
+                    color = MaterialTheme.colorScheme.onBackground
                 )
-            }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Developer Branding: DrakoXNaeem Style
-            Text(
-                text = "Designed & Developed by DrakoXNaeem",
-                style = typo().bodyMedium,
-                fontWeight = FontWeight.Medium,
-                textDecoration = TextDecoration.Underline,
-                color = Color(0xFFFF79C6),
-                modifier = Modifier
-                    .clickable {
-                        openUrl("https://magma-portfolio-sigma.vercel.app")
-                    }
-                    .padding(8.dp),
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // App Description Section Card
-            Card(
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF160D2D).copy(alpha = 0.8f)
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp)
+                CompositionLocalProvider(
+                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
                 ) {
-                    Text(
-                        text = "System Architecture & Overview",
-                        style = typo().titleMedium,
-                        color = Color(0xFF00E5FF),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Naeem Music is a high-performance, cross-platform audio streaming solution powered by advanced modern technologies. Built with security, speed, and precision automation in mind.",
-                        style = typo().bodyMedium,
-                        color = Color(0xFFD1C4E9),
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Start,
-                    )
+                    SocialLinkButton(icon = "🌐", title = "Official Website", url = "https://magma-portfolio-sigma.vercel.app")
+                    SocialLinkButton(icon = "📸", title = "Instagram Portfolio", url = "https://instagram.com")
+                    SocialLinkButton(icon = "📘", title = "Facebook Profile", url = "https://facebook.com")
+                    SocialLinkButton(icon = "💻", title = "GitHub Repositories", url = "https://github.com/nansari7287-sys")
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(40.dp))
 
-            // Section Header: Community & Social Links
+            // Professional Footer
             Text(
-                text = "MEDIA & SOCIALS",
-                style = typo().labelLarge,
-                color = Color(0xFF9575CD),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 28.dp, vertical = 8.dp),
-                textAlign = TextAlign.Start
-            )
-
-            // Links and Buttons Section
-            CompositionLocalProvider(
-                LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
-            ) {
-                // Official Website Button
-                CreditMenuButton(
-                    title = "Official Portfolio Website",
-                    subtitle = "magma-portfolio-sigma.vercel.app",
-                    iconSymbol = "🌐",
-                    onClick = { openUrl("https://magma-portfolio-sigma.vercel.app") }
-                )
-
-                // Instagram Portfolio Button
-                CreditMenuButton(
-                    title = "Instagram Portfolio",
-                    subtitle = "Connect & view visual feeds",
-                    iconSymbol = "📸",
-                    onClick = { openUrl("https://instagram.com") }
-                )
-
-                // Facebook Profile Button
-                CreditMenuButton(
-                    title = "Facebook Profile",
-                    subtitle = "Official social connection",
-                    iconSymbol = "📘",
-                    onClick = { openUrl("https://facebook.com") }
-                )
-
-                // GitHub Repositories Button
-                CreditMenuButton(
-                    title = "GitHub Repositories",
-                    subtitle = "nansari7287-sys / NaeemMusic",
-                    iconSymbol = "💻",
-                    onClick = { openUrl("https://github.com/nansari7287-sys") }
-                )
-
-                // Telegram Network Button
-                CreditMenuButton(
-                    title = "Telegram Network",
-                    subtitle = "Join the developer channel",
-                    iconSymbol = "✈️",
-                    onClick = { openUrl("https://telegram.org") }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // System Information Section Card
-            Card(
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF160D2D).copy(alpha = 0.8f)
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp)
-                ) {
-                    Text(
-                        text = "Systems Protocol Info",
-                        style = typo().titleMedium,
-                        color = Color(0xFF00E5FF),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "• Location: Chino, Jharkhand, India\n• Framework: Jetpack Compose & Kotlin Multiplatform\n• Security Protocol: Encrypted Build Pipeline via GitHub Actions",
-                        style = typo().bodySmall,
-                        color = Color(0xFFD1C4E9),
-                        fontSize = 13.sp,
-                        textAlign = TextAlign.Start,
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Copyright Information
-            Text(
-                text = "© 2026 Naeem ( DrakoXNaeem ). All rights reserved.",
-                style = typo().bodySmall,
-                color = Color(0xFFB39DDB),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 28.dp, vertical = 8.dp),
+                text = "© 2026 Naeem (DrakoXNaeem).\nAll rights reserved.",
+                style = typo().labelSmall,
                 textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding() + 40.dp)
             )
-
-            // Extra bottom spacing for smooth scrolling experience
-            Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding() + 180.dp))
         }
 
-        // Custom Glassmorphism Top App Bar
+        // Top App Bar with Blur Effect and Perfect Icon
         TopAppBar(
-            modifier = Modifier
-                .hazeEffect(
-                    state = hazeState,
-                    style = HazeMaterials.ultraThin(),
-                ) {
-                    blurEnabled = true
-                },
+            modifier = Modifier.hazeEffect(
+                state = hazeState,
+                style = HazeMaterials.ultraThin(),
+            ) {
+                blurEnabled = true
+            },
             title = {
                 Text(
-                    text = "Naeem Music - Credits",
-                    style = typo().titleMedium,
-                    color = Color.White,
+                    text = "About Naeem Music",
+                    style = typo().titleMedium.copy(fontWeight = FontWeight.SemiBold),
                     maxLines = 1,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -346,78 +222,46 @@ fun CreditScreen(
             },
             navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
-                    Text(
-                        text = "←",
-                        fontSize = 24.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Navigate Back",
+                        tint = MaterialTheme.colorScheme.onBackground
                     )
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = Color.Transparent,
-                scrolledContainerColor = Color.Transparent,
-                navigationIconContentColor = Color.White,
-                titleContentColor = Color.White,
-                actionIconContentColor = Color.White,
+                scrolledContainerColor = Color.Unspecified,
+                navigationIconContentColor = Color.Unspecified,
+                titleContentColor = Color.Unspecified,
+                actionIconContentColor = Color.Unspecified,
             ),
         )
     }
 }
 
-/**
- * Reusable Custom Menu Button for Links and Social Actions in CreditScreen
- */
+// Clean and Reusable Component for Social Buttons
 @Composable
-private fun CreditMenuButton(
-    title: String,
-    subtitle: String,
-    iconSymbol: String,
-    onClick: () -> Unit
-) {
-    Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = Color(0xFF1E1238),
+fun SocialLinkButton(icon: String, title: String, url: String) {
+    TextButton(
+        onClick = { openUrl(url) },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 6.dp)
-            .clickable(onClick = onClick),
-        shadowElevation = 2.dp
+            .padding(vertical = 4.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
+        shape = RoundedCornerShape(12.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Text(text = icon, fontSize = 22.sp)
+            Spacer(modifier = Modifier.width(16.dp))
             Text(
-                text = iconSymbol,
-                fontSize = 24.sp,
-                modifier = Modifier.padding(end = 16.dp)
-            )
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = title,
-                    style = typo().bodyLarge,
-                    color = Color.White,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 15.sp
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = subtitle,
-                    style = typo().bodySmall,
-                    color = Color(0xFFB39DDB),
-                    fontSize = 12.sp
-                )
-            }
-            Text(
-                text = "➔",
-                color = Color(0xFF00E5FF),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                text = title,
+                style = typo().bodyMedium.copy(fontWeight = FontWeight.Medium),
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
     }
