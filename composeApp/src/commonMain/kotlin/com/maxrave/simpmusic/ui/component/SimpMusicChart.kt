@@ -52,7 +52,7 @@ fun SimpMusicChartButton(
 
             // Text
             Text(
-                text = "Introducing MagmaMusic Chart",
+                text = "Introducing 𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎 Chart",
                 fontSize = 13.sp,
                 color = labelColor,
                 fontWeight = FontWeight.Normal
