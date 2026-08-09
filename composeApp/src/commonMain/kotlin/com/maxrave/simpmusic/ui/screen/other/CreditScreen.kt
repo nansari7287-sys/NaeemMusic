@@ -15,9 +15,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -78,7 +74,8 @@ fun CreditScreen(
                 title = { Text("Developer Hub", color = Color.White, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = Color.White)
+                        // Icon hata kar text use kiya gaya hai taaki error na aaye
+                        Text("←", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = amoledBlack)
@@ -102,7 +99,7 @@ fun CreditScreen(
 
                 // 2. DEVELOPER TEAM
                 item {
-                    SectionTitle("Core Team", Icons.Default.Person)
+                    SectionTitle("Core Team", "👥")
                 }
                 items(developerTeam) { developer ->
                     DeveloperCard(developer)
@@ -112,7 +109,7 @@ fun CreditScreen(
 
                 // 3. SETTINGS & PREFERENCES
                 item {
-                    SectionTitle("App Preferences", Icons.Default.Settings)
+                    SectionTitle("App Preferences", "⚙️")
                     AdvancedSettingsPanel()
                 }
 
@@ -120,7 +117,7 @@ fun CreditScreen(
 
                 // 4. LIBRARIES
                 item {
-                    SectionTitle("Open Source", Icons.Default.Info)
+                    SectionTitle("Open Source", "📦")
                 }
                 items(usedLibraries) { library ->
                     LibraryCard(library)
@@ -144,12 +141,12 @@ fun CreditScreen(
 
 // --- MODULAR COMPONENTS ---
 @Composable
-fun SectionTitle(title: String, icon: ImageVector) {
+fun SectionTitle(title: String, emoji: String) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
-        Icon(icon, contentDescription = null, tint = neonPurple, modifier = Modifier.size(20.dp))
+        Text(text = emoji, fontSize = 20.sp)
         Spacer(modifier = Modifier.width(8.dp))
         Text(text = title, color = Color.White, style = typo().titleMedium.copy(fontWeight = FontWeight.Bold))
     }
@@ -293,7 +290,7 @@ fun EasterEggOverlay(onClose: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(Icons.Default.Star, contentDescription = null, tint = neonPurple, modifier = Modifier.size(80.dp))
+            Text("⭐", fontSize = 80.sp)
             Spacer(modifier = Modifier.height(16.dp))
             Text("You found the secret!", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             Text("Stay Awesome 🚀", color = neonPurple, fontSize = 18.sp)
