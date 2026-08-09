@@ -1,6 +1,10 @@
 package com.maxrave.simpmusic.ui.component
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -9,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.maxrave.domain.extension.now
@@ -21,28 +26,74 @@ import simpmusic.composeapp.generated.resources.version_format
 
 @Composable
 fun EndOfPage(withoutCredit: Boolean = false) {
+    // 🔗 UriHandler ka use links ko browser mein open karne ke liye hota hai
+    val uriHandler = LocalUriHandler.current
+
     Box(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(280.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(280.dp),
         contentAlignment = Alignment.TopCenter,
     ) {
         if (!withoutCredit) {
-            Text(
-                "@${now().year} " + stringResource(Res.string.app_name) + " " +
-                    stringResource(
-                        Res.string.version_format,
-                        VersionManager.getVersionName(),
-                    ) + "\nmagma-dev",
-                style = typo().bodySmall,
-                textAlign = TextAlign.Center,
-                modifier =
-                    Modifier
-                        .padding(
-                            top = 20.dp,
-                        ).alpha(0.8f),
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(top = 20.dp).alpha(0.8f)
+            ) {
+                // 📱 App Name and Version
+                Text(
+                    "@${now().year} " + stringResource(Res.string.app_name) + " " +
+                        stringResource(
+                            Res.string.version_format,
+                            VersionManager.getVersionName(),
+                        ),
+                    style = typo().bodySmall,
+                    textAlign = TextAlign.Center,
+                )
+                
+                // 👤 Developer Text
+                Text(
+                    "Developed by Naeem",
+                    style = typo().bodySmall,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+
+                // 🌐 Clickable Social Links Row
+                Row(
+                    modifier = Modifier.padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        "Instagram",
+                        style = typo().bodySmall,
+                        modifier = Modifier.clickable {
+                            uriHandler.openUri("https://www.instagram.com/drakoxnaeem?igsh=MWVrdmh1NXFneDdxNg==")
+                        }
+                    )
+                    Text(
+                        "Facebook",
+                        style = typo().bodySmall,
+                        modifier = Modifier.clickable {
+                            uriHandler.openUri("https://www.facebook.com/share/1FsktLSsTn/")
+                        }
+                    )
+                    Text(
+                        "Telegram",
+                        style = typo().bodySmall,
+                        modifier = Modifier.clickable {
+                            uriHandler.openUri("https://t.me/frexxxy")
+                        }
+                    )
+                    Text(
+                        "Website",
+                        style = typo().bodySmall,
+                        modifier.clickable {
+                            uriHandler.openUri("https://naeem-portfolio-k8sj-ten.vercel.app/#projects")
+                        }
+                    )
+                }
+            }
         }
     }
 }
