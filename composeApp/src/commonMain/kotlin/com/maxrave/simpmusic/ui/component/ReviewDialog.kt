@@ -92,7 +92,7 @@ fun ReviewDialog(
                         ) {
                             onDoneReview.invoke()
                             onDismissRequest.invoke()
-                            uriHandler.openUri("https://files.catbox.moe/plkn0t.jpg")
+                            uriHandler.openUri("")
                         },
                     ) {
                         append(stringResource(Res.string.buying_me_a_coffee))
