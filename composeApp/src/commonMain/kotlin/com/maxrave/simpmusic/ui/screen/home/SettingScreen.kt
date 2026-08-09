@@ -2277,7 +2277,7 @@ fun SettingScreen(
                                         listSelect =
                                             listOf(
                                                 (updateChannel == DataStoreManager.FDROID) to "F-Droid",
-                                                (updateChannel == DataStoreManager.GITHUB) to "MagmaMusic GitHub Release",
+                                                (updateChannel == DataStoreManager.GITHUB) to "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎 GitHub Release",
                                             ),
                                     ),
                                 confirm =
@@ -2285,7 +2285,7 @@ fun SettingScreen(
                                         viewModel.setUpdateChannel(
                                             when (state.selectOne?.getSelected()) {
                                                 "F-Droid" -> DataStoreManager.FDROID
-                                                "MagmaMusic GitHub Release" -> DataStoreManager.GITHUB
+                                                "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎 GitHub Release" -> DataStoreManager.GITHUB
                                                 else -> DataStoreManager.GITHUB
                                             },
                                         )
@@ -2306,14 +2306,14 @@ fun SettingScreen(
                     title = stringResource(Res.string.author),
                     subtitle = stringResource(Res.string.maxrave_dev),
                     onClick = {
-                        uriHandler.openUri("https://github.com/themagmalord333-oss")
+                        uriHandler.openUri("https://github.com/nansari7287-sys")
                     },
                 )
                 SettingItem(
                     title = stringResource(Res.string.developer_blog),
                     subtitle = stringResource(Res.string.developer_blog_tagline),
                     onClick = {
-                        uriHandler.openUri("https://magma-portfolio-sigma.vercel.app")
+                        uriHandler.openUri("https://github.com/nansari7287-sys")
                     },
                 )
                 if (getPlatform() == Platform.Android) {
