@@ -13,7 +13,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.maxrave.domain.extension.now
@@ -28,6 +34,9 @@ import simpmusic.composeapp.generated.resources.version_format
 fun EndOfPage(withoutCredit: Boolean = false) {
     // 🔗 UriHandler ka use links ko browser mein open karne ke liye hota hai
     val uriHandler = LocalUriHandler.current
+
+    // 🎨 Neon colors for your name (Purple to Cyan gradient)
+    val neonColors = listOf(Color(0xFFB026FF), Color(0xFF00D4FF))
 
     Box(
         modifier = Modifier
@@ -51,48 +60,67 @@ fun EndOfPage(withoutCredit: Boolean = false) {
                     textAlign = TextAlign.Center,
                 )
                 
-                // 👤 Developer Text
+                // 👤 Developer Text (Neon & Bold)
                 Text(
-                    "Developed by Naeem",
-                    style = typo().bodySmall,
+                    text = "Developed by 𝑵𝒂𝒆𝒆𝒎",
+                    style = typo().bodyLarge.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 4.dp)
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .graphicsLayer(alpha = 0.99f)
+                        .drawWithCache {
+                            val brush = Brush.linearGradient(neonColors)
+                            onDrawWithContent {
+                                drawContent()
+                                drawRect(brush, blendMode = BlendMode.SrcAtop)
+                            }
+                        }
                 )
 
-                // 🌐 Clickable Social Links Row
+                // 🌐 Clickable Social Links Row (With Colorful Icons)
                 Row(
-                    modifier = Modifier.padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier = Modifier.padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        "Instagram",
-                        style = typo().bodySmall,
-                        modifier = Modifier.clickable {
-                            uriHandler.openUri("https://www.instagram.com/drakoxnaeem?igsh=MWVrdmh1NXFneDdxNg==")
-                        }
-                    )
-                    Text(
-                        "Facebook",
-                        style = typo().bodySmall,
-                        modifier = Modifier.clickable {
-                            uriHandler.openUri("https://www.facebook.com/share/1FsktLSsTn/")
-                        }
-                    )
-                    Text(
-                        "Telegram",
-                        style = typo().bodySmall,
-                        modifier = Modifier.clickable {
-                            uriHandler.openUri("https://t.me/frexxxy")
-                        }
-                    )
-                    Text(
-                        "Website",
-                        style = typo().bodySmall,
-                        // Yahan par fix kiya gaya hai: modifier = Modifier.clickable
-                        modifier = Modifier.clickable {
-                            uriHandler.openUri("https://naeem-portfolio-k8sj-ten.vercel.app/#projects")
-                        }
-                    )
+                    
+                    // Instagram
+                    Row(
+                        modifier = Modifier.clickable { uriHandler.openUri("https://www.instagram.com/drakoxnaeem?igsh=MWVrdmh1NXFneDdxNg==") },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("📸 ", style = typo().bodyMedium)
+                        Text("Instagram", style = typo().bodySmall)
+                    }
+
+                    // Facebook
+                    Row(
+                        modifier = Modifier.clickable { uriHandler.openUri("https://www.facebook.com/share/1FsktLSsTn/") },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("📘 ", style = typo().bodyMedium)
+                        Text("Facebook", style = typo().bodySmall)
+                    }
+
+                    // Telegram
+                    Row(
+                        modifier = Modifier.clickable { uriHandler.openUri("https://t.me/frexxxy") },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("✈️ ", style = typo().bodyMedium)
+                        Text("Telegram", style = typo().bodySmall)
+                    }
+
+                    // Website
+                    Row(
+                        modifier = Modifier.clickable { uriHandler.openUri("https://naeem-portfolio-k8sj-ten.vercel.app/#projects") },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("🌐 ", style = typo().bodyMedium)
+                        Text("Website", style = typo().bodySmall)
+                    }
                 }
             }
         }
