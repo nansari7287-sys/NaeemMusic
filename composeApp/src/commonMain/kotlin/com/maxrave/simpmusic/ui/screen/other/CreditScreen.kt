@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -27,14 +28,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.maxrave.simpmusic.expect.openUrl
 import com.maxrave.simpmusic.ui.theme.typo
 
-// --- HARDCODED THEME COLORS FOR SAFETY ---
+// --- HARDCODED THEME COLORS ---
 val amoledBlack = Color(0xFF000000)
 val neonPurple = Color(0xFF9D4EDD)
 val darkSurface = Color(0xFF120A1A)
@@ -143,7 +143,6 @@ fun CreditScreen(
 }
 
 // --- MODULAR COMPONENTS ---
-
 @Composable
 fun SectionTitle(title: String, icon: ImageVector) {
     Row(
