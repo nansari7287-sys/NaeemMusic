@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
@@ -69,13 +71,18 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
@@ -161,7 +168,6 @@ import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import simpmusic.composeapp.generated.resources.Res
 import simpmusic.composeapp.generated.resources.all
-import simpmusic.composeapp.generated.resources.app_name
 import simpmusic.composeapp.generated.resources.cancel
 import simpmusic.composeapp.generated.resources.chart
 import simpmusic.composeapp.generated.resources.commute
@@ -188,6 +194,7 @@ import simpmusic.composeapp.generated.resources.warning
 import simpmusic.composeapp.generated.resources.welcome_back
 import simpmusic.composeapp.generated.resources.what_is_best_choice_today
 import simpmusic.composeapp.generated.resources.workout
+import simpmusic.composeapp.generated.resources.bg_premium
 
 // DataStore key for blog-promo one-shot dialog. Bump the suffix (v2, v3, …) to re-promote.
 private const val BLOG_PROMO_KEY = "blog_promo_v1_seen"
@@ -268,8 +275,6 @@ fun HomeScreen(
 
     LaunchedEffect(dominantColorState, isLightTheme) {
         snapshotFlow { dominantColorState.color }.collect {
-            // Light theme: pull the artwork color toward white for a soft pastel header;
-            // dark theme keeps the original darkened tone.
             topHeaderColor = if (isLightTheme) lerp(it, Color.White, 0.85f) else it.rgbFactor(0.3f)
         }
     }
@@ -340,7 +345,6 @@ fun HomeScreen(
         } else if ((openAppTime == 1 || openAppTime % 15 == 0) && openAppTime <= 60 && !shareLyricsPermissions) {
             showRequestShareLyricsPermissions = true
         } else if (openAppTime == 5) {
-            // Blog promo: one-shot after 5 app opens, bump key suffix to re-promote later
             if (sharedViewModel.getString(BLOG_PROMO_KEY) != "true") {
                 showBlogPromoDialog = true
             }
@@ -372,15 +376,6 @@ fun HomeScreen(
             )
         }
     }
-
-//    if (shouldShowGetDataSyncIdBottomSheet) {
-//        GetDataSyncIdBottomSheet(
-//            cookie = youTubeCookie,
-//            onDismissRequest = {
-//                shouldShowGetDataSyncIdBottomSheet = false
-//            },
-//        )
-//    }
 
     if (showReviewDialog) {
         ReviewDialog(
@@ -480,7 +475,15 @@ fun HomeScreen(
         )
     }
 
-    Box {
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Premium Cosmic Background Image
+        Image(
+            painter = painterResource(Res.drawable.bg_premium),
+            contentDescription = "Premium Cosmic Background",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+        
         PullToRefreshBox(
             modifier =
                 Modifier
@@ -536,7 +539,7 @@ fun HomeScreen(
                                             Modifier
                                                 .fillMaxWidth()
                                                 .height(300.dp)
-                                                .angledGradientBackground(listOf(animatedColor, backgroundColor), 25f),
+                                                .angledGradientBackground(listOf(animatedColor.copy(alpha = 0.5f), Color.Transparent), 25f),
                                     ) {
                                         Box(
                                             modifier =
@@ -544,7 +547,7 @@ fun HomeScreen(
                                                     .fillMaxWidth()
                                                     .height(180.dp)
                                                     .align(Alignment.BottomCenter)
-                                                    .background(artworkScrimBrush(backgroundColor)),
+                                                    .background(artworkScrimBrush(Color.Transparent)),
                                         )
                                     }
                                 }
@@ -839,6 +842,11 @@ fun HomeTopAppBar(navController: NavController) {
             val date = now().time
             date.hour
         }
+        
+    val NeonGradientBrush = Brush.linearGradient(
+        colors = listOf(Color(0xFF00F5FF), Color(0xFF9D4EDD), Color(0xFFFF007F))
+    )
+    
     TopAppBar(
         windowInsets =
             TopAppBarDefaults.windowInsets.exclude(
@@ -847,31 +855,22 @@ fun HomeTopAppBar(navController: NavController) {
         title = {
             Column {
                 Text(
-                    text = stringResource(Res.string.app_name),
-                    style = typo().titleMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(bottom = 4.dp),
+                    text = "Naeem Music",
+                    style = TextStyle(
+                        brush = NeonGradientBrush,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                        shadow = Shadow(color = Color.Magenta, blurRadius = 15f)
+                    ),
+                    modifier = Modifier.padding(bottom = 2.dp),
                 )
                 Text(
-                    text =
-                        when (hour) {
-                            in 6..12 -> {
-                                stringResource(Res.string.good_morning)
-                            }
-
-                            in 13..17 -> {
-                                stringResource(Res.string.good_afternoon)
-                            }
-
-                            in 18..23 -> {
-                                stringResource(Res.string.good_evening)
-                            }
-
-                            else -> {
-                                stringResource(Res.string.good_night)
-                            }
-                        },
-                    style = typo().bodySmall,
+                    text = "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎",
+                    style = TextStyle(
+                        brush = NeonGradientBrush,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 )
             }
         },
@@ -1040,10 +1039,6 @@ fun MoodMomentAndGenre(
             text = stringResource(Res.string.let_s_pick_a_playlist_for_you),
             style = typo().bodyMedium,
         )
-        // One block per section YouTube returned, headed by ITS OWN title. Hard-coding
-        // "Moods & moment" / "Genre" here (and reading mood.moodsMoments / mood.genres by
-        // index) mislabelled every row as soon as a signed-in account got an extra
-        // "For you" section, and hid the real Genres section altogether.
         mood.sections.forEach { section ->
             val gridState = rememberLazyGridState()
             val flingBehavior = rememberSnapFlingBehavior(SnapLayoutInfoProvider(lazyGridState = gridState))
