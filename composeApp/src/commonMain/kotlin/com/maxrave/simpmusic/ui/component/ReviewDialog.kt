@@ -40,7 +40,7 @@ fun ReviewDialog(
         confirmButton = {
             TextButton(onClick = {
                 onDoneReview.invoke()
-                uriHandler.openUri("https://github.com/themagmalord333-oss")
+                uriHandler.openUri("https://github.com/nansari7287-sys/NaeemMusic/releases")
             }) {
                 Text(
                     stringResource(Res.string.give_a_star),
@@ -73,12 +73,12 @@ fun ReviewDialog(
                     append(stringResource(Res.string.if_you_enjoy_using_simpmusic_star_simpmusic_on_github_or_leave_a_review_on))
                     withLink(
                         LinkAnnotation.Url(
-                            "https://magma-portfolio-sigma.vercel.app",
+                            "https://naeem-portfolio-k8sj-ten.vercel.app/#projects",
                             TextLinkStyles(style = SpanStyle(textDecoration = TextDecoration.Underline, color = seed)),
                         ) {
                             onDoneReview.invoke()
                             onDismissRequest.invoke()
-                            uriHandler.openUri("https://magma-portfolio-sigma.vercel.app")
+                            uriHandler.openUri("https://naeem-portfolio-k8sj-ten.vercel.app/#projects")
                         },
                     ) {
                         append(" ProductHunt")
