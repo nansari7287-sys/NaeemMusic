@@ -868,7 +868,7 @@ fun HomeTopAppBar(navController: NavController) {
                     text = "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎",
                     style = TextStyle(
                         brush = NeonGradientBrush,
-                        fontSize = 12.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
                 )
