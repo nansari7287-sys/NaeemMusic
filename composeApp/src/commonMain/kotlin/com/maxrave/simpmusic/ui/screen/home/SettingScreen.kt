@@ -2266,7 +2266,7 @@ fun SettingScreen(
                         if (updateChannel == DataStoreManager.FDROID) {
                             "F-Droid"
                         } else {
-                            "MagmaMusic GitHub Release"
+                            "𝑵𝒂𝒆𝒆𝒎 𝑴𝒖𝒔𝒊𝒄 GitHub Release"
                         },
                     onClick = {
                         viewModel.setAlertData(
