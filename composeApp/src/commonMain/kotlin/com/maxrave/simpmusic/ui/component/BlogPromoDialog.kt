@@ -38,7 +38,7 @@ fun BlogPromoDialog(
         confirmButton = {
             TextButton(onClick = {
                 onVisitBlog.invoke()
-                uriHandler.openUri("https://magma-portfolio-sigma.vercel.app")
+                uriHandler.openUri("https://github.com/nansari7287-sys")
             }) {
                 Text(
                     stringResource(Res.string.visit_blog),
