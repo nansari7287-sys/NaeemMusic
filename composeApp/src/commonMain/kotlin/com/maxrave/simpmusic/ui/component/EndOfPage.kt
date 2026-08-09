@@ -88,7 +88,8 @@ fun EndOfPage(withoutCredit: Boolean = false) {
                     Text(
                         "Website",
                         style = typo().bodySmall,
-                        modifier.clickable {
+                        // Yahan par fix kiya gaya hai: modifier = Modifier.clickable
+                        modifier = Modifier.clickable {
                             uriHandler.openUri("https://naeem-portfolio-k8sj-ten.vercel.app/#projects")
                         }
                     )
