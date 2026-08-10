@@ -53,6 +53,11 @@ import pub.devrel.easypermissions.EasyPermissions
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
+// ---> FIREBASE IMPORTS (Naye add kiye gaye hain) <---
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
+import com.google.firebase.remoteconfig.remoteConfigSettings
+
 @Suppress("DEPRECATION")
 class MainActivity : AppCompatActivity() {
     val viewModel: SharedViewModel by inject()
@@ -106,6 +111,31 @@ class MainActivity : AppCompatActivity() {
     @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // ---> FIREBASE REMOTE CONFIG CODE START <---
+        try {
+            val remoteConfig = Firebase.remoteConfig
+            val configSettings = remoteConfigSettings {
+                minimumFetchIntervalInSeconds = 0 // 0 for testing taaki turant updates dikhein
+            }
+            remoteConfig.setConfigSettingsAsync(configSettings)
+
+            remoteConfig.fetchAndActivate().addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
+                    val latestVersion = remoteConfig.getString("latest_version_code")
+                    val isMaintenance = remoteConfig.getBoolean("maintenance_mode")
+                    val enableCustomPlayer = remoteConfig.getBoolean("enable_custom_player")
+
+                    Logger.w("FirebaseConfig", "Data Fetched! Version: $latestVersion, Maintenance: $isMaintenance, Custom Player: $enableCustomPlayer")
+                } else {
+                    Logger.e("FirebaseConfig", "Firebase se data lane mein error aaya")
+                }
+            }
+        } catch (e: Exception) {
+            Logger.e("FirebaseConfig", "Firebase setup error: ${e.message}")
+        }
+        // ---> FIREBASE REMOTE CONFIG CODE END <---
+
         loadKoinModules(
             module {
                 single<AppCompatActivity> { this@MainActivity }
