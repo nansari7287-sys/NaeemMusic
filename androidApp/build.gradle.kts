@@ -170,4 +170,7 @@ dependencies {
     } else {
         implementation(projects.crashlyticsEmpty)
     }
+
+    // ---> YAHAN FIREBASE KI NAYI LIBRARY ADD KI GAYI HAI <---
+    implementation("com.google.firebase:firebase-config-ktx:21.6.0")
 }
