@@ -28,10 +28,6 @@ plugins {
     alias(libs.plugins.packagedeps)
 }
 
-// composeApp uses the `android.kotlin.multiplatform.library` plugin, so with the
-// default `generateResClass = auto` Compose skips generating the `Res` class
-// (it treats a KMP *library* module as not owning the public resource class).
-// Force it to `always` so `Res` is generated for this app module.
 compose.resources {
     generateResClass = always
 }
@@ -54,25 +50,7 @@ kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
         }
-        
-        // 👉 ADDED: Output file ka naam change karne ka code
-        libraryVariants.all { variant ->
-            variant.outputs.all { output ->
-                val outputFileName = output as? com.android.build.gradle.internal.api.BaseVariantOutputImpl
-                outputFileName?.outputFileName = "NaeemMusic.apk"
-            }
-        }
     }
-
-//    listOf(
-//        iosArm64(),
-//        iosSimulatorArm64()
-//    ).forEach { iosTarget ->
-//        iosTarget.binaries.framework {
-//            baseName = "ComposeApp"
-//            isStatic = true
-//        }
-//    }
 
     jvm()
 
@@ -85,8 +63,8 @@ kotlin {
             implementation(libs.commons.io)
         }
         androidMain.dependencies {
-            // 👉 ADDED: Firebase BOM aur Remote Config Dependencies
-            implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
+            // 👉 FIXED: Sahi tarike se Firebase BOM aur Remote Config add ki gayi hain
+            implementation(project.dependencies.platform("com.google.firebase:firebase-bom:33.10.0"))
             implementation("com.google.firebase:firebase-config")
 
             api(project.dependencies.platform(libs.koin.bom))
@@ -104,7 +82,6 @@ kotlin {
             api(projects.media3)
             api(projects.media3Ui)
 
-            // Google Cast (gated: real SDK for full builds, no-op stub for FOSS builds)
             if (isFullBuild) {
                 implementation(projects.cast)
             } else {
@@ -121,33 +98,24 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
 
-            // Compose
             implementation(libs.compose.material3.adaptive)
             implementation(libs.compose.material.ripple)
 
             implementation(libs.ui.tooling.preview)
 
-            // Other module
             api(projects.common)
             api(projects.domain)
             implementation(projects.data)
 
-            // Last.fm (gated: real scrobbler for full builds, no-op stub for FOSS builds).
-            // `api` rather than `implementation` so :androidApp can hand it the credentials from
-            // BuildKonfig at startup, the same way it does for Sentry.
             if (isFullBuild) {
                 api(projects.lastfm)
             } else {
                 api(projects.lastfmEmpty)
             }
 
-            // Navigation Compose
             implementation(libs.navigation.compose)
-
-            // Kotlin Serialization
             implementation(libs.kotlinx.serialization.json)
 
-            // Coil
             api(libs.coil.compose)
             api(libs.coil.network.okhttp)
             api(libs.kmpalette.core)
@@ -155,38 +123,31 @@ kotlin {
             implementation(libs.materialkolor)
             implementation(libs.ktor.client.cio)
 
-            // DataStore
             implementation(libs.datastore.preferences)
 
-            // Lottie
             implementation(libs.compottie)
             implementation(libs.compottie.dot)
             implementation(libs.compottie.network)
             implementation(libs.compottie.resources)
 
-            // Paging 3
             implementation(libs.androidx.paging.common)
             implementation(libs.paging.compose)
 
             implementation(libs.aboutlibraries)
             implementation(libs.aboutlibraries.compose.m3)
 
-            // Koin
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
 
-            // Jetbrains Markdown
             api(libs.markdown)
 
-            // Blur Haze
             implementation(libs.haze)
             implementation(libs.haze.material)
 
             api(libs.cmptoast)
             implementation(libs.file.picker)
 
-            // Liquid glass
             implementation(libs.liquid.glass)
             implementation(libs.liquid.glass.shape)
         }
@@ -194,54 +155,12 @@ kotlin {
             implementation(libs.kotlin.test)
         }
         jvmMain.dependencies {
-            // Desktop app entry (main.kt), jpackage/Conveyor
-            // packaging, and tray icon live in :desktopApp per the
-            // JetBrains 2026 KMP default structure. This module keeps the
-            // shared JVM UI + expect/actuals and their direct dependencies.
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
             implementation(libs.sentry.jvm)
             implementation(libs.native.tray)
             implementation(projects.mediaJvmUi)
         }
-    }
-}
-
-// NOTE: compose.desktop{} application block, ProGuard config,
-// linuxDebConfig{}, the custom AppImage tooling, and Conveyor packaging
-// live in :desktopApp per the JetBrains 2026 KMP default structure.
-//
-// Native-library staging (libmpv) lives here in :composeApp — see the
-// mpv-natives block below. The layout is per-arch so Conveyor bundles only
-// the slice each per-machine installer actually needs.
-
-fun downloadIfMissing(
-    url: String,
-    target: java.io.File,
-    logPrefix: String = "mpv-multi",
-) {
-    if (target.exists() && target.length() > 0) {
-        logger.lifecycle("[$logPrefix] Cached: ${target.name}")
-        return
-    }
-    logger.lifecycle("[$logPrefix] Downloading $url")
-    target.parentFile.mkdirs()
-    val curlExit =
-        ProcessBuilder(
-            "curl",
-            "-fsSL",
-            "--retry",
-            "5",
-            "--retry-delay",
-            "5",
-            "--retry-all-errors",
-            "-o",
-            target.absolutePath,
-            url,
-        ).inheritIO().start().waitFor()
-    check(curlExit == 0 && target.exists() && target.length() > 0) {
-        if (target.exists()) target.delete()
-        "curl failed (exit $curlExit) downloading $url to $target"
     }
 }
 
