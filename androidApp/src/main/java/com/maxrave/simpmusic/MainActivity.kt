@@ -53,10 +53,9 @@ import pub.devrel.easypermissions.EasyPermissions
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-// ---> FIREBASE IMPORTS (Naye add kiye gaye hain) <---
-import com.google.firebase.Firebase
-import com.google.firebase.remoteconfig.remoteConfig
-import com.google.firebase.remoteconfig.remoteConfigSettings
+// ---> Naye Firebase Imports <---
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 
 @Suppress("DEPRECATION")
 class MainActivity : AppCompatActivity() {
@@ -72,7 +71,6 @@ class MainActivity : AppCompatActivity() {
                 name: ComponentName?,
                 service: IBinder?,
             ) {
-//                mediaPlayerHandler.setActivitySession(this@MainActivity, MainActivity::class.java, service)
                 setServiceActivitySession(this@MainActivity, MainActivity::class.java, service)
                 Logger.w("MainActivity", "onServiceConnected: ")
                 mBound = true
@@ -114,21 +112,65 @@ class MainActivity : AppCompatActivity() {
         
         // ---> FIREBASE REMOTE CONFIG CODE START <---
         try {
-            val remoteConfig = Firebase.remoteConfig
-            val configSettings = remoteConfigSettings {
-                minimumFetchIntervalInSeconds = 0 // 0 for testing taaki turant updates dikhein
-            }
+            val remoteConfig = FirebaseRemoteConfig.getInstance()
+            val configSettings = FirebaseRemoteConfigSettings.Builder()
+                .setMinimumFetchIntervalInSeconds(0) // Testing ke liye 0 seconds
+                .build()
             remoteConfig.setConfigSettingsAsync(configSettings)
 
             remoteConfig.fetchAndActivate().addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    val latestVersion = remoteConfig.getString("latest_version_code")
+                    // 1. Maintenance Check
                     val isMaintenance = remoteConfig.getBoolean("maintenance_mode")
-                    val enableCustomPlayer = remoteConfig.getBoolean("enable_custom_player")
+                    if (isMaintenance) {
+                        runOnUiThread {
+                            android.app.AlertDialog.Builder(this)
+                                .setTitle("Maintenance Notice 🚧")
+                                .setMessage("App par abhi kaam chal raha hai. Kripya thodi der baad koshish karein.")
+                                .setCancelable(false)
+                                .show()
+                        }
+                        return@addOnCompleteListener
+                    }
 
-                    Logger.w("FirebaseConfig", "Data Fetched! Version: $latestVersion, Maintenance: $isMaintenance, Custom Player: $enableCustomPlayer")
-                } else {
-                    Logger.e("FirebaseConfig", "Firebase se data lane mein error aaya")
+                    // 2. Version Update Check
+                    val latestVersionCode = remoteConfig.getString("latest_version_code")
+                    val updateUrl = remoteConfig.getString("update_url")
+                    val currentVersion = "1.7.0" // Aapka current version
+
+                    if (latestVersionCode.isNotEmpty() && latestVersionCode != currentVersion) {
+                        runOnUiThread {
+                            android.app.AlertDialog.Builder(this)
+                                .setTitle("Naya Update Available! 🚀")
+                                .setMessage("App ka naya version ($latestVersionCode) aa gaya hai. Update karein!")
+                                .setPositiveButton("Update") { _, _ ->
+                                    if (updateUrl.isNotEmpty()) {
+                                        val intent = android.content.Intent(
+                                            android.content.Intent.ACTION_VIEW, 
+                                            android.net.Uri.parse(updateUrl)
+                                        )
+                                        startActivity(intent)
+                                    }
+                                }
+                                .setCancelable(false)
+                                .show()
+                        }
+                        return@addOnCompleteListener
+                    }
+
+                    // 3. Custom Announcement Pop-up Check
+                    val showAnnouncement = remoteConfig.getBoolean("show_announcement")
+                    val announcementMsg = remoteConfig.getString("announcement_msg")
+
+                    if (showAnnouncement && announcementMsg.isNotEmpty()) {
+                        runOnUiThread {
+                            android.app.AlertDialog.Builder(this)
+                                .setTitle("Notice 📢")
+                                .setMessage(announcementMsg)
+                                .setPositiveButton("OK", null)
+                                .show()
+                        }
+                    }
                 }
             }
         } catch (e: Exception) {
@@ -141,7 +183,6 @@ class MainActivity : AppCompatActivity() {
                 single<AppCompatActivity> { this@MainActivity }
             },
         )
-        // Recreate view model to fix the issue of view model not getting data from the service
         unloadKoinModules(viewModelModule)
         loadKoinModules(viewModelModule)
         VersionManager.initialize()
@@ -164,18 +205,9 @@ class MainActivity : AppCompatActivity() {
         }
         Logger.d("Italy", "Key: ${Locale.ITALY.toLanguageTag()}")
 
-        // Check if the migration has already been done or not
         if (getString(FIRST_TIME_MIGRATION) != STATUS_DONE) {
             Logger.d("Locale Key", "onCreate: ${Locale.getDefault().toLanguageTag()}")
             if (SUPPORTED_LANGUAGE.codes.contains(Locale.getDefault().toLanguageTag())) {
-                Logger.d(
-                    "Contains",
-                    "onCreate: ${
-                        SUPPORTED_LANGUAGE.codes.contains(
-                            Locale.getDefault().toLanguageTag(),
-                        )
-                    }",
-                )
                 putString(SELECTED_LANGUAGE, Locale.getDefault().toLanguageTag())
                 if (SUPPORTED_LOCATION.items.contains(Locale.getDefault().country)) {
                     putString("location", Locale.getDefault().country)
@@ -185,25 +217,16 @@ class MainActivity : AppCompatActivity() {
             } else {
                 putString(SELECTED_LANGUAGE, "en-US")
             }
-            // Fetch the selected language from wherever it was stored. In this case its SharedPref
             getString(SELECTED_LANGUAGE)?.let {
                 Logger.d("Locale Key", "getString: $it")
-                // Set this locale using the AndroidX library that will handle the storage itself
                 val localeList = LocaleListCompat.forLanguageTags(it)
                 AppCompatDelegate.setApplicationLocales(localeList)
-                // Set the migration flag to ensure that this is executed only once
                 putString(FIRST_TIME_MIGRATION, STATUS_DONE)
             }
         }
         if (AppCompatDelegate.getApplicationLocales().toLanguageTags() !=
-            getString(
-                SELECTED_LANGUAGE,
-            )
+            getString(SELECTED_LANGUAGE)
         ) {
-            Logger.d(
-                "Locale Key",
-                "onCreate: ${AppCompatDelegate.getApplicationLocales().toLanguageTags()}",
-            )
             putString(SELECTED_LANGUAGE, AppCompatDelegate.getApplicationLocales().toLanguageTags())
         }
 
@@ -265,7 +288,6 @@ class MainActivity : AppCompatActivity() {
                 if (doNotAsk != "true") {
                     val wasAsked = getString("notification_permission_asked")
                     if (wasAsked != "true") {
-                        // First time: request system permission
                         EasyPermissions.requestPermissions(
                             this,
                             runBlocking { ComposeResUtils.getResString(ComposeResUtils.StringType.NOTIFICATION_REQUEST) },
@@ -274,7 +296,6 @@ class MainActivity : AppCompatActivity() {
                         )
                         putString("notification_permission_asked", "true")
                     } else {
-                        // Already asked before: show custom dialog with "Don't show again"
                         viewModel.showNotificationPermissionDialog()
                     }
                 }
@@ -290,8 +311,6 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         val shouldStopMusicService = viewModel.shouldStopMusicService()
         Logger.w("MainActivity", "onDestroy: Should stop service $shouldStopMusicService")
-
-        // Always unbind service if it was bound to prevent MusicBinder leak
         if (shouldStopMusicService && shouldUnbind && isFinishing) {
             viewModel.isServiceRunning = false
         }
@@ -306,7 +325,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startMusicService() {
-//        mediaPlayerHandler.startMediaService(this, serviceConnection)
         com.maxrave.media3.di
             .startService(this@MainActivity, serviceConnection)
         mediaPlayerHandler.pushPlayerError = { it ->
