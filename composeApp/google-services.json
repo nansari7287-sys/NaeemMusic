@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "674401190553",
+    "project_id": "naeem-music-6e754",
+    "storage_bucket": "naeem-music-6e754.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:674401190553:android:c89a64a89562bbc0c9ee08",
+        "android_client_info": {
+          "package_name": "com.naeem.music"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7TzZZQ43X8-_P0-pVM4o9scIKUEfs6gA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
