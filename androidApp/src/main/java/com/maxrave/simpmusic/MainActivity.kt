@@ -11,6 +11,7 @@ import android.os.IBinder
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -53,7 +54,7 @@ import pub.devrel.easypermissions.EasyPermissions
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-// ---> Naye Firebase Imports <---
+// FIREBASE IMPORTS
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 
@@ -96,7 +97,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        Logger.d("MainActivity", "onNewIntent: $intent")
         viewModel.setIntent(
             GenericIntent(
                 action = intent.action,
@@ -114,67 +114,55 @@ class MainActivity : AppCompatActivity() {
         try {
             val remoteConfig = FirebaseRemoteConfig.getInstance()
             val configSettings = FirebaseRemoteConfigSettings.Builder()
-                .setMinimumFetchIntervalInSeconds(0) // Testing ke liye 0 seconds
+                .setMinimumFetchIntervalInSeconds(0) // Testing ke liye
                 .build()
             remoteConfig.setConfigSettingsAsync(configSettings)
 
             remoteConfig.fetchAndActivate().addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    // 1. Maintenance Check
                     val isMaintenance = remoteConfig.getBoolean("maintenance_mode")
-                    if (isMaintenance) {
-                        runOnUiThread {
-                            android.app.AlertDialog.Builder(this)
-                                .setTitle("Maintenance Notice 🚧")
-                                .setMessage("App par abhi kaam chal raha hai. Kripya thodi der baad koshish karein.")
-                                .setCancelable(false)
-                                .show()
-                        }
-                        return@addOnCompleteListener
-                    }
-
-                    // 2. Version Update Check
                     val latestVersionCode = remoteConfig.getString("latest_version_code")
                     val updateUrl = remoteConfig.getString("update_url")
-                    val currentVersion = "1.7.0" // Aapka current version
-
-                    if (latestVersionCode.isNotEmpty() && latestVersionCode != currentVersion) {
-                        runOnUiThread {
-                            android.app.AlertDialog.Builder(this)
-                                .setTitle("Naya Update Available! 🚀")
-                                .setMessage("App ka naya version ($latestVersionCode) aa gaya hai. Update karein!")
-                                .setPositiveButton("Update") { _, _ ->
-                                    if (updateUrl.isNotEmpty()) {
-                                        val intent = android.content.Intent(
-                                            android.content.Intent.ACTION_VIEW, 
-                                            android.net.Uri.parse(updateUrl)
-                                        )
-                                        startActivity(intent)
-                                    }
-                                }
-                                .setCancelable(false)
-                                .show()
-                        }
-                        return@addOnCompleteListener
-                    }
-
-                    // 3. Custom Announcement Pop-up Check
+                    val currentVersion = "1.7.0"
                     val showAnnouncement = remoteConfig.getBoolean("show_announcement")
                     val announcementMsg = remoteConfig.getString("announcement_msg")
 
-                    if (showAnnouncement && announcementMsg.isNotEmpty()) {
-                        runOnUiThread {
-                            android.app.AlertDialog.Builder(this)
-                                .setTitle("Notice 📢")
-                                .setMessage(announcementMsg)
-                                .setPositiveButton("OK", null)
-                                .show()
+                    runOnUiThread {
+                        if (isMaintenance) {
+                            val builder = AlertDialog.Builder(this@MainActivity)
+                            builder.setTitle("Maintenance Notice 🚧")
+                            builder.setMessage("App par abhi kaam chal raha hai. Kripya thodi der baad koshish karein.")
+                            builder.setCancelable(false)
+                            builder.show()
+                        } else if (latestVersionCode.isNotEmpty() && latestVersionCode != currentVersion) {
+                            val builder = AlertDialog.Builder(this@MainActivity)
+                            builder.setTitle("Naya Update Available! 🚀")
+                            builder.setMessage("App ka naya version ($latestVersionCode) aa gaya hai. Update karein!")
+                            builder.setPositiveButton("Update") { _, _ ->
+                                if (updateUrl.isNotEmpty()) {
+                                    val intent = android.content.Intent(
+                                        android.content.Intent.ACTION_VIEW, 
+                                        android.net.Uri.parse(updateUrl)
+                                    )
+                                    startActivity(intent)
+                                }
+                            }
+                            builder.setCancelable(false)
+                            builder.show()
+                        } else if (showAnnouncement && announcementMsg.isNotEmpty()) {
+                            val builder = AlertDialog.Builder(this@MainActivity)
+                            builder.setTitle("Notice 📢")
+                            builder.setMessage(announcementMsg)
+                            builder.setPositiveButton("OK") { dialog, _ -> 
+                                dialog.dismiss() 
+                            }
+                            builder.show()
                         }
                     }
                 }
             }
         } catch (e: Exception) {
-            Logger.e("FirebaseConfig", "Firebase setup error: ${e.message}")
+            Logger.e("FirebaseConfig", "Firebase error: ${e.message}")
         }
         // ---> FIREBASE REMOTE CONFIG CODE END <---
 
@@ -192,7 +180,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             startMusicService()
         }
-        Logger.d("MainActivity", "onCreate: ")
+
         val data = (intent?.data ?: intent?.getStringExtra(Intent.EXTRA_TEXT)?.toUri())?.toKmpUriOrNull()
         if (data != null) {
             viewModel.setIntent(
@@ -203,10 +191,8 @@ class MainActivity : AppCompatActivity() {
                 ),
             )
         }
-        Logger.d("Italy", "Key: ${Locale.ITALY.toLanguageTag()}")
 
         if (getString(FIRST_TIME_MIGRATION) != STATUS_DONE) {
-            Logger.d("Locale Key", "onCreate: ${Locale.getDefault().toLanguageTag()}")
             if (SUPPORTED_LANGUAGE.codes.contains(Locale.getDefault().toLanguageTag())) {
                 putString(SELECTED_LANGUAGE, Locale.getDefault().toLanguageTag())
                 if (SUPPORTED_LOCATION.items.contains(Locale.getDefault().country)) {
@@ -218,7 +204,6 @@ class MainActivity : AppCompatActivity() {
                 putString(SELECTED_LANGUAGE, "en-US")
             }
             getString(SELECTED_LANGUAGE)?.let {
-                Logger.d("Locale Key", "getString: $it")
                 val localeList = LocaleListCompat.forLanguageTags(it)
                 AppCompatDelegate.setApplicationLocales(localeList)
                 putString(FIRST_TIME_MIGRATION, STATUS_DONE)
@@ -310,13 +295,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         val shouldStopMusicService = viewModel.shouldStopMusicService()
-        Logger.w("MainActivity", "onDestroy: Should stop service $shouldStopMusicService")
         if (shouldStopMusicService && shouldUnbind && isFinishing) {
             viewModel.isServiceRunning = false
         }
         unloadKoinModules(viewModelModule)
         super.onDestroy()
-        Logger.d("MainActivity", "onDestroy: ")
     }
 
     override fun onRestart() {
@@ -336,7 +319,6 @@ class MainActivity : AppCompatActivity() {
                     is ToastType.ExplicitContent -> {
                         runBlocking { ComposeResUtils.getResString(ComposeResUtils.StringType.EXPLICIT_CONTENT_BLOCKED) }
                     }
-
                     is ToastType.PlayerError -> {
                         runBlocking { ComposeResUtils.getResString(ComposeResUtils.StringType.TIME_OUT_ERROR, type.error) }
                     }
@@ -345,7 +327,6 @@ class MainActivity : AppCompatActivity() {
         }
         viewModel.isServiceRunning = true
         shouldUnbind = true
-        Logger.d("Service", "Service started")
     }
 
     private fun checkForUpdate() {
