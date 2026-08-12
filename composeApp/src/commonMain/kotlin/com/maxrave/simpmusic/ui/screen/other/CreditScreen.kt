@@ -56,19 +56,21 @@ data class TeamMember(
     val displaySymbol: String
 )
 
+// YAHAN NAAM SHORT KIYE GAYE HAIN
 val communityLinks = listOf(
-    SocialProfile("Telegram Network", "https://t.me/frexxxy", "telegram"),
-    SocialProfile("Portfolio Website", "https://naeem-portfolio-k8sj-ten.vercel.app/", "website")
+    SocialProfile("Telegram", "https://t.me/frexxxy", "telegram"),
+    SocialProfile("Website", "https://naeem-portfolio-k8sj-ten.vercel.app/", "website")
 )
 
 val mediaLinks = listOf(
-    SocialProfile("Instagram Portfolio", "https://www.instagram.com/drakoxnaeem?igsh=MWVrdmh1NXFneDdxNg==", "instagram"),
-    SocialProfile("Facebook Profile", "https://www.facebook.com/share/1FsktLSsTn/", "facebook")
+    SocialProfile("Instagram", "https://www.instagram.com/drakoxnaeem?igsh=MWVrdmh1NXFneDdxNg==", "instagram"),
+    SocialProfile("Facebook", "https://www.facebook.com/share/1FsktLSsTn/", "facebook")
 )
 
+// YAHAN MAXRAVE HATA KAR NAEEM AUR GITHUB LINK ADD KIYA HAI
 val coreDevelopmentTeam = listOf(
     TeamMember("𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎", "Lead System Architect", "https://naeem-portfolio-k8sj-ten.vercel.app/", "👑"),
-    TeamMember("Maxrave", "Original Base Creator", "https://github.com/maxrave-dev", "⭐")
+    TeamMember("𝑵𝒂𝒆𝒆𝒎", "Creator", "https://github.com/nansari7287-sys", "⭐")
 )
 
 // --- 📱 MAIN CREDIT SCREEN COMPOSABLE ---
@@ -248,7 +250,7 @@ fun HeaderSection(
             text = "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎",
             style = TextStyle(
                 brush = NeonGradientBrush,
-                fontSize = 38.sp, // Made significantly bigger
+                fontSize = 38.sp, 
                 fontWeight = FontWeight.ExtraBold,
                 shadow = Shadow(color = Color.Magenta, blurRadius = 20f),
                 fontStyle = FontStyle.Italic
@@ -268,6 +270,15 @@ fun HeaderSection(
 fun ExpandedSocialContactCard(social: SocialProfile) {
     val uriHandler = LocalUriHandler.current
 
+    // YAHAN HAR SOCIAL MEDIA KE LIYE ALAG COLOUR (GRADIENT) SET KIYA HAI
+    val textBrush = when (social.identifier) {
+        "instagram" -> Brush.horizontalGradient(listOf(Color(0xFF833AB4), Color(0xFFFD1D1D), Color(0xFFFCA048)))
+        "facebook" -> Brush.horizontalGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF)))
+        "telegram" -> Brush.horizontalGradient(listOf(Color(0xFF28D8FE), Color(0xFF03A9F4)))
+        "website" -> Brush.horizontalGradient(listOf(Color(0xFF00F2FE), Color(0xFF4FACFE)))
+        else -> SolidColor(Color.White)
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -277,11 +288,14 @@ fun ExpandedSocialContactCard(social: SocialProfile) {
     ) {
         CustomCanvasBrandIcon(type = social.identifier)
         Spacer(modifier = Modifier.width(16.dp))
+        // YAHAN TEXT MEIN COLOUR BRUSH LAGA DIYA
         Text(
             text = social.platformName, 
-            color = Color(0xFFE2E8F0), 
-            fontSize = 15.sp, 
-            fontWeight = FontWeight.Medium
+            style = TextStyle(
+                brush = textBrush,
+                fontSize = 16.sp, 
+                fontWeight = FontWeight.Bold
+            )
         )
     }
 }
@@ -305,9 +319,10 @@ fun ExpandedDeveloperCard(developer: TeamMember) {
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
-            if (developer.memberName == "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎") {
+            // DRAKOXNAEEM AUR NAEEM DONO KO COLOURFUL BANAYA HAI
+            if (developer.memberName == "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎" || developer.memberName == "Naeem") {
                 Text(
-                    text = "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎",
+                    text = developer.memberName,
                     style = TextStyle(
                         brush = NeonGradientBrush,
                         fontSize = 17.sp,
@@ -373,7 +388,6 @@ fun ExpandedFooterSection() {
             )
         )
         Spacer(modifier = Modifier.height(4.dp))
-        // Footer mein sub-branding ko bhi bada kiya gaya hai
         Text(
             text = "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎", 
             style = TextStyle(
