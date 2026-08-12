@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontFamily
@@ -28,8 +29,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import kotlin.random.Random
+
+// --- 🎬 VIDEO PLAYER IMPORTS ---
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.AspectRatioFrameLayout
+import androidx.media3.ui.PlayerView
 
 // --- 🎨 NEON THEME & PALETTE CONFIGURATION ---
 val AmoledBlack = Color(0xFF000000)
@@ -56,7 +65,6 @@ data class TeamMember(
     val displaySymbol: String
 )
 
-// YAHAN NAAM SHORT KIYE GAYE HAIN
 val communityLinks = listOf(
     SocialProfile("Telegram", "https://t.me/frexxxy", "telegram"),
     SocialProfile("Website", "https://naeem-portfolio-k8sj-ten.vercel.app/", "website")
@@ -67,11 +75,54 @@ val mediaLinks = listOf(
     SocialProfile("Facebook", "https://www.facebook.com/share/1FsktLSsTn/", "facebook")
 )
 
-// YAHAN MAXRAVE HATA KAR NAEEM AUR GITHUB LINK ADD KIYA HAI
 val coreDevelopmentTeam = listOf(
     TeamMember("𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎", "Lead System Architect", "https://naeem-portfolio-k8sj-ten.vercel.app/", "👑"),
-    TeamMember("𝑵𝒂𝒆𝒆𝒎", "Creator", "https://github.com/nansari7287-sys", "⭐")
+    TeamMember("Naeem", "Creator", "https://github.com/nansari7287-sys", "⭐")
 )
+
+// --- 🎥 BACKGROUND VIDEO COMPOSABLE (YAHAN LOOP KA MAGIC HAI) ---
+@Composable
+fun BackgroundVideoPlayer() {
+    val context = LocalContext.current
+    
+    val exoPlayer = remember {
+        ExoPlayer.Builder(context).build().apply {
+            // Yahan video ka naam 'developer_bg' diya gaya hai jo raw folder mein hai
+            val videoUri = android.net.Uri.parse("android.resource://${context.packageName}/raw/developer_bg")
+            setMediaItem(MediaItem.fromUri(videoUri))
+            
+            // 🔥 YAHAN LOOP SET KIYA HAI (Video lagatar chalegi)
+            repeatMode = Player.REPEAT_MODE_ONE 
+            
+            playWhenReady = true // Auto-play
+            volume = 0f // Awaaz band karne ke liye (mute)
+            prepare()
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            exoPlayer.release() // Jab screen band ho to memory free karna
+        }
+    }
+
+    AndroidView(
+        factory = {
+            PlayerView(context).apply {
+                player = exoPlayer
+                useController = false // Play/Pause button hide karne ke liye
+                resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM // Screen ko full cover karne ke liye
+                layoutParams = android.view.ViewGroup.LayoutParams(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT
+                )
+            }
+        },
+        modifier = Modifier
+            .fillMaxSize()
+            .alpha(0.4f) // Video ko thoda dark rakha hai taaki upar ka text chamke
+    )
+}
 
 // --- 📱 MAIN CREDIT SCREEN COMPOSABLE ---
 @OptIn(ExperimentalMaterial3Api::class)
@@ -95,13 +146,16 @@ fun CreditScreen(
             .padding(paddingValues)
             .background(AmoledBlack)
     ) {
-        // 🌌 Procedural Starry Space Background Canvas
+        
+        // 🎬 BACKGROUND ME VIDEO CHALANE WALA FUNCTION YAHAN CALL KIYA HAI
+        BackgroundVideoPlayer()
+
+        // 🌌 Procedural Starry Space (Video ke upar halke sitare)
         Canvas(modifier = Modifier.fillMaxSize()) {
-            drawRect(brush = SpaceRadialGradient)
-            repeat(70) {
+            repeat(50) {
                 drawCircle(
-                    color = Color.White.copy(alpha = Random.nextFloat() * 0.8f + 0.2f),
-                    radius = Random.nextFloat() * 2.8f,
+                    color = Color.White.copy(alpha = Random.nextFloat() * 0.5f + 0.1f),
+                    radius = Random.nextFloat() * 2f,
                     center = Offset(Random.nextFloat() * size.width, Random.nextFloat() * size.height)
                 )
             }
@@ -112,7 +166,7 @@ fun CreditScreen(
             topBar = {
                 TopAppBar(
                     title = {
-                        Text("Developer Hub", color = Color.LightGray, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                        Text("Developer Hub", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
                     },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
@@ -132,52 +186,34 @@ fun CreditScreen(
                         .padding(horizontal = 20.dp),
                     contentPadding = PaddingValues(bottom = 60.dp)
                 ) {
-                    // 1. Dynamic Animated Header
                     item {
                         Spacer(modifier = Modifier.height(10.dp))
                         HeaderSection(listState = listState) { logoTapCount++ }
                         Spacer(modifier = Modifier.height(30.dp))
                     }
 
-                    // 2. COMMUNITY HUB Section
-                    item {
-                        SectionHeaderTitle("Community Hub")
-                    }
-                    items(communityLinks) { social ->
-                        ExpandedSocialContactCard(social = social)
-                    }
+                    item { SectionHeaderTitle("Community Hub") }
+                    items(communityLinks) { social -> ExpandedSocialContactCard(social = social) }
 
                     item { Spacer(modifier = Modifier.height(16.dp)) }
 
-                    // 3. MEDIA & SOCIALS Section
-                    item {
-                        SectionHeaderTitle("Media & Socials")
-                    }
-                    items(mediaLinks) { social ->
-                        ExpandedSocialContactCard(social = social)
-                    }
+                    item { SectionHeaderTitle("Media & Socials") }
+                    items(mediaLinks) { social -> ExpandedSocialContactCard(social = social) }
 
                     item { Spacer(modifier = Modifier.height(16.dp)) }
 
-                    // 4. SYSTEMS INFO Section
-                    item {
-                        SectionHeaderTitle("Systems Info")
-                    }
-                    items(coreDevelopmentTeam) { dev ->
-                        ExpandedDeveloperCard(developer = dev)
-                    }
+                    item { SectionHeaderTitle("Systems Info") }
+                    items(coreDevelopmentTeam) { dev -> ExpandedDeveloperCard(developer = dev) }
 
-                    // 5. Footer Credits
                     item {
                         Spacer(modifier = Modifier.height(40.dp))
-                        HorizontalDivider(color = Color.DarkGray.copy(alpha = 0.3f), thickness = 1.dp)
+                        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f), thickness = 1.dp)
                         Spacer(modifier = Modifier.height(20.dp))
                         ExpandedFooterSection()
                         Spacer(modifier = Modifier.height(30.dp))
                     }
                 }
 
-                // Hidden Easter Egg Overlay
                 AnimatedVisibility(
                     visible = isEasterEggActive,
                     enter = fadeIn(animationSpec = tween(400)),
@@ -207,7 +243,7 @@ fun SectionHeaderTitle(titleText: String) {
             letterSpacing = 1.5.sp
         )
         Spacer(modifier = Modifier.height(8.dp))
-        HorizontalDivider(color = Color.DarkGray.copy(alpha = 0.4f), thickness = 1.dp)
+        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.4f), thickness = 1.dp)
     }
 }
 
@@ -230,7 +266,7 @@ fun HeaderSection(
             modifier = Modifier
                 .size(90.dp)
                 .clip(CircleShape)
-                .background(Color(0xFF1E1035))
+                .background(Color(0xFF1E1035).copy(alpha = 0.6f))
                 .border(2.dp, NeonGradientBrush, CircleShape)
                 .clickable { onLogoClicked() },
             contentAlignment = Alignment.Center
@@ -259,9 +295,10 @@ fun HeaderSection(
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "System Architect & Developer",
-            color = Color.LightGray,
+            color = Color.White,
             fontSize = 14.sp,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Medium
         )
     }
 }
@@ -269,8 +306,6 @@ fun HeaderSection(
 @Composable
 fun ExpandedSocialContactCard(social: SocialProfile) {
     val uriHandler = LocalUriHandler.current
-
-    // YAHAN HAR SOCIAL MEDIA KE LIYE ALAG COLOUR (GRADIENT) SET KIYA HAI
     val textBrush = when (social.identifier) {
         "instagram" -> Brush.horizontalGradient(listOf(Color(0xFF833AB4), Color(0xFFFD1D1D), Color(0xFFFCA048)))
         "facebook" -> Brush.horizontalGradient(listOf(Color(0xFF00C6FF), Color(0xFF0072FF)))
@@ -283,19 +318,15 @@ fun ExpandedSocialContactCard(social: SocialProfile) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { uriHandler.openUri(social.targetUrl) }
-            .padding(vertical = 14.dp, horizontal = 4.dp),
+            .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+            .padding(vertical = 14.dp, horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         CustomCanvasBrandIcon(type = social.identifier)
         Spacer(modifier = Modifier.width(16.dp))
-        // YAHAN TEXT MEIN COLOUR BRUSH LAGA DIYA
         Text(
             text = social.platformName, 
-            style = TextStyle(
-                brush = textBrush,
-                fontSize = 16.sp, 
-                fontWeight = FontWeight.Bold
-            )
+            style = TextStyle(brush = textBrush, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         )
     }
 }
@@ -308,7 +339,8 @@ fun ExpandedDeveloperCard(developer: TeamMember) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { uriHandler.openUri(developer.profileUrl) }
-            .padding(vertical = 14.dp, horizontal = 4.dp),
+            .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+            .padding(vertical = 14.dp, horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
@@ -319,21 +351,16 @@ fun ExpandedDeveloperCard(developer: TeamMember) {
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
-            // DRAKOXNAEEM AUR NAEEM DONO KO COLOURFUL BANAYA HAI
             if (developer.memberName == "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎" || developer.memberName == "Naeem") {
                 Text(
                     text = developer.memberName,
-                    style = TextStyle(
-                        brush = NeonGradientBrush,
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    style = TextStyle(brush = NeonGradientBrush, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                 )
             } else {
                 Text(text = developer.memberName, color = Color.White, fontWeight = FontWeight.Medium, fontSize = 15.sp)
             }
             Spacer(modifier = Modifier.height(2.dp))
-            Text(text = developer.memberRole, color = Color.Gray, fontSize = 12.sp)
+            Text(text = developer.memberRole, color = Color.LightGray, fontSize = 12.sp)
         }
     }
 }
@@ -380,24 +407,15 @@ fun ExpandedFooterSection() {
     ) {
         Text(
             text = "Naeem Music",
-            style = TextStyle(
-                brush = NeonGradientBrush, 
-                fontSize = 22.sp, 
-                fontWeight = FontWeight.ExtraBold,
-                shadow = Shadow(color = NeonPurpleAccent, blurRadius = 10f)
-            )
+            style = TextStyle(brush = NeonGradientBrush, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, shadow = Shadow(color = NeonPurpleAccent, blurRadius = 10f))
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎", 
-            style = TextStyle(
-                brush = NeonGradientBrush, 
-                fontSize = 16.sp, 
-                fontWeight = FontWeight.Bold
-            )
+            style = TextStyle(brush = NeonGradientBrush, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Text("© 2026 Naeem (DrakoXNaeem). All rights reserved.", color = Color.Gray, fontSize = 11.sp)
+        Text("© 2026 Naeem (DrakoXNaeem). All rights reserved.", color = Color.LightGray, fontSize = 11.sp)
     }
 }
 
@@ -415,15 +433,10 @@ fun SecretEasterEggOverlay(onDismiss: () -> Unit) {
             Spacer(modifier = Modifier.height(14.dp))
             Text(
                 text = "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎",
-                style = TextStyle(
-                    brush = NeonGradientBrush,
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    shadow = Shadow(Color.Magenta, blurRadius = 30f)
-                )
+                style = TextStyle(brush = NeonGradientBrush, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold, shadow = Shadow(Color.Magenta, blurRadius = 30f))
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Hidden Developer Overlay Unlocked 🚀", color = Color.LightGray, fontSize = 15.sp)
+            Text("Hidden Developer Overlay Unlocked 🚀", color = Color.White, fontSize = 15.sp)
         }
     }
 }
