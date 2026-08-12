@@ -108,7 +108,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    // enable view binding
     buildFeatures {
         viewBinding = true
         compose = true
@@ -134,10 +133,6 @@ android {
             excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
 }
 
 dependencies {
@@ -145,19 +140,10 @@ dependencies {
     val debugImplementation = "debugImplementation"
     debugImplementation(libs.ui.tooling)
     implementation(libs.activity.compose)
-
-    // Custom Activity On Crash
     implementation(libs.customactivityoncrash)
-
-    // Easy Permissions
     implementation(libs.easypermissions)
-
-    // Legacy Support
     implementation(libs.legacy.support.v4)
-    // Coroutines
     implementation(libs.coroutines.android)
-
-    // Glance
     implementation(libs.glance)
     implementation(libs.glance.appwidget)
     implementation(libs.glance.material3)
@@ -171,6 +157,11 @@ dependencies {
         implementation(projects.crashlyticsEmpty)
     }
 
-    // ---> YAHAN FIREBASE KI NAYI LIBRARY ADD KI GAYI HAI <---
+    // ---> FIREBASE LIBRARIES (Updates ke liye) <---
     implementation("com.google.firebase:firebase-config-ktx:21.6.0")
+    implementation("com.google.firebase:firebase-analytics-ktx:21.5.0")
+
+    // ---> EXO PLAYER LIBRARIES (Background Video chalane ke liye) <---
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
+    implementation("androidx.media3:media3-ui:1.3.1")
 }
