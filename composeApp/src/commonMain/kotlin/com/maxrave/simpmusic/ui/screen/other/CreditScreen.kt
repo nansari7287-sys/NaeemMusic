@@ -20,7 +20,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontFamily
@@ -29,108 +28,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import kotlin.random.Random
 
-// --- 🎬 VIDEO PLAYER IMPORTS ---
-import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.AspectRatioFrameLayout
-import androidx.media3.ui.PlayerView
-
-// --- 🎨 NEON THEME & PALETTE CONFIGURATION ---
 val AmoledBlack = Color(0xFF000000)
-val SpaceCardColor = Color(0xFF130B21)
 val NeonPurpleAccent = Color(0xFF9D4EDD)
 val NeonGradientBrush = Brush.linearGradient(
     colors = listOf(Color(0xFF00F5FF), Color(0xFF9D4EDD), Color(0xFFFF007F))
 )
-val SpaceRadialGradient = Brush.radialGradient(
-    colors = listOf(Color(0xFF2D1B4E), Color(0xFF07030C))
-)
 
-// --- 📊 DATA MODELS FOR SOCIALS & DEVELOPERS ---
-data class SocialProfile(
-    val platformName: String,
-    val targetUrl: String,
-    val identifier: String
-)
-
-data class TeamMember(
-    val memberName: String,
-    val memberRole: String,
-    val profileUrl: String,
-    val displaySymbol: String
-)
+data class SocialProfile(val platformName: String, val targetUrl: String, val identifier: String)
+data class TeamMember(val memberName: String, val memberRole: String, val profileUrl: String, val displaySymbol: String)
 
 val communityLinks = listOf(
     SocialProfile("Telegram", "https://t.me/frexxxy", "telegram"),
     SocialProfile("Website", "https://naeem-portfolio-k8sj-ten.vercel.app/", "website")
 )
-
 val mediaLinks = listOf(
     SocialProfile("Instagram", "https://www.instagram.com/drakoxnaeem?igsh=MWVrdmh1NXFneDdxNg==", "instagram"),
     SocialProfile("Facebook", "https://www.facebook.com/share/1FsktLSsTn/", "facebook")
 )
-
 val coreDevelopmentTeam = listOf(
     TeamMember("𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎", "Lead System Architect", "https://naeem-portfolio-k8sj-ten.vercel.app/", "👑"),
     TeamMember("Naeem", "Creator", "https://github.com/nansari7287-sys", "⭐")
 )
 
-// --- 🎥 BACKGROUND VIDEO COMPOSABLE (YAHAN LOOP KA MAGIC HAI) ---
-@Composable
-fun BackgroundVideoPlayer() {
-    val context = LocalContext.current
-    
-    val exoPlayer = remember {
-        ExoPlayer.Builder(context).build().apply {
-            // Yahan video ka naam 'developer_bg' diya gaya hai jo raw folder mein hai
-            val videoUri = android.net.Uri.parse("android.resource://${context.packageName}/raw/developer_bg")
-            setMediaItem(MediaItem.fromUri(videoUri))
-            
-            // 🔥 YAHAN LOOP SET KIYA HAI (Video lagatar chalegi)
-            repeatMode = Player.REPEAT_MODE_ONE 
-            
-            playWhenReady = true // Auto-play
-            volume = 0f // Awaaz band karne ke liye (mute)
-            prepare()
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            exoPlayer.release() // Jab screen band ho to memory free karna
-        }
-    }
-
-    AndroidView(
-        factory = {
-            PlayerView(context).apply {
-                player = exoPlayer
-                useController = false // Play/Pause button hide karne ke liye
-                resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM // Screen ko full cover karne ke liye
-                layoutParams = android.view.ViewGroup.LayoutParams(
-                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                    android.view.ViewGroup.LayoutParams.MATCH_PARENT
-                )
-            }
-        },
-        modifier = Modifier
-            .fillMaxSize()
-            .alpha(0.4f) // Video ko thoda dark rakha hai taaki upar ka text chamke
-    )
-}
-
-// --- 📱 MAIN CREDIT SCREEN COMPOSABLE ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreditScreen(
-    paddingValues: PaddingValues,
-    navController: NavController
-) {
+fun CreditScreen(paddingValues: PaddingValues, navController: NavController) {
     val listState = rememberLazyListState()
     var logoTapCount by remember { mutableIntStateOf(0) }
     var isEasterEggActive by remember { mutableStateOf(false) }
@@ -140,19 +65,13 @@ fun CreditScreen(
         logoTapCount = 0
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
-            .background(AmoledBlack)
-    ) {
+    Box(modifier = Modifier.fillMaxSize().padding(paddingValues).background(AmoledBlack)) {
         
-        // 🎬 BACKGROUND ME VIDEO CHALANE WALA FUNCTION YAHAN CALL KIYA HAI
-        BackgroundVideoPlayer()
+        // 🔥 YAHAN WOH 3 NAYI FILES APNA JADU DIKHAYENGI 🔥
+        DynamicBackground()
 
-        // 🌌 Procedural Starry Space (Video ke upar halke sitare)
         Canvas(modifier = Modifier.fillMaxSize()) {
-            repeat(50) {
+            repeat(40) {
                 drawCircle(
                     color = Color.White.copy(alpha = Random.nextFloat() * 0.5f + 0.1f),
                     radius = Random.nextFloat() * 2f,
@@ -165,9 +84,7 @@ fun CreditScreen(
             containerColor = Color.Transparent,
             topBar = {
                 TopAppBar(
-                    title = {
-                        Text("Developer Hub", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
-                    },
+                    title = { Text("Developer Hub", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
                             Text("←", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
@@ -180,10 +97,7 @@ fun CreditScreen(
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     state = listState,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                        .padding(horizontal = 20.dp),
+                    modifier = Modifier.fillMaxSize().padding(innerPadding).padding(horizontal = 20.dp),
                     contentPadding = PaddingValues(bottom = 60.dp)
                 ) {
                     item {
@@ -191,20 +105,14 @@ fun CreditScreen(
                         HeaderSection(listState = listState) { logoTapCount++ }
                         Spacer(modifier = Modifier.height(30.dp))
                     }
-
                     item { SectionHeaderTitle("Community Hub") }
                     items(communityLinks) { social -> ExpandedSocialContactCard(social = social) }
-
                     item { Spacer(modifier = Modifier.height(16.dp)) }
-
                     item { SectionHeaderTitle("Media & Socials") }
                     items(mediaLinks) { social -> ExpandedSocialContactCard(social = social) }
-
                     item { Spacer(modifier = Modifier.height(16.dp)) }
-
                     item { SectionHeaderTitle("Systems Info") }
                     items(coreDevelopmentTeam) { dev -> ExpandedDeveloperCard(developer = dev) }
-
                     item {
                         Spacer(modifier = Modifier.height(40.dp))
                         HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f), thickness = 1.dp)
@@ -213,12 +121,7 @@ fun CreditScreen(
                         Spacer(modifier = Modifier.height(30.dp))
                     }
                 }
-
-                AnimatedVisibility(
-                    visible = isEasterEggActive,
-                    enter = fadeIn(animationSpec = tween(400)),
-                    exit = fadeOut(animationSpec = tween(400))
-                ) {
+                AnimatedVisibility(visible = isEasterEggActive, enter = fadeIn(animationSpec = tween(400)), exit = fadeOut(animationSpec = tween(400))) {
                     SecretEasterEggOverlay { isEasterEggActive = false }
                 }
             }
@@ -226,80 +129,28 @@ fun CreditScreen(
     }
 }
 
-// --- 🛠️ HELPER COMPONENTS ---
-
 @Composable
 fun SectionHeaderTitle(titleText: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp)
-    ) {
-        Text(
-            text = titleText.uppercase(),
-            color = Color.White,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Bold,
-            letterSpacing = 1.5.sp
-        )
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
+        Text(text = titleText.uppercase(), color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
         Spacer(modifier = Modifier.height(8.dp))
         HorizontalDivider(color = Color.LightGray.copy(alpha = 0.4f), thickness = 1.dp)
     }
 }
 
 @Composable
-fun HeaderSection(
-    listState: androidx.compose.foundation.lazy.LazyListState,
-    onLogoClicked: () -> Unit
-) {
+fun HeaderSection(listState: LazyListState, onLogoClicked: () -> Unit) {
     val scrollOffset = if (listState.firstVisibleItemIndex == 0) listState.firstVisibleItemScrollOffset else 300
     val alphaFraction = (1f - (scrollOffset / 300f)).coerceIn(0.2f, 1f)
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .alpha(alphaFraction)
-            .padding(vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier
-                .size(90.dp)
-                .clip(CircleShape)
-                .background(Color(0xFF1E1035).copy(alpha = 0.6f))
-                .border(2.dp, NeonGradientBrush, CircleShape)
-                .clickable { onLogoClicked() },
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "N",
-                style = TextStyle(
-                    brush = NeonGradientBrush,
-                    fontSize = 45.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    shadow = Shadow(color = NeonPurpleAccent, blurRadius = 25f)
-                )
-            )
+    Column(modifier = Modifier.fillMaxWidth().alpha(alphaFraction).padding(vertical = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(modifier = Modifier.size(90.dp).clip(CircleShape).background(Color(0xFF1E1035).copy(alpha = 0.6f)).border(2.dp, NeonGradientBrush, CircleShape).clickable { onLogoClicked() }, contentAlignment = Alignment.Center) {
+            Text("N", style = TextStyle(brush = NeonGradientBrush, fontSize = 45.sp, fontWeight = FontWeight.ExtraBold, shadow = Shadow(color = NeonPurpleAccent, blurRadius = 25f)))
         }
         Spacer(modifier = Modifier.height(20.dp))
-        Text(
-            text = "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎",
-            style = TextStyle(
-                brush = NeonGradientBrush,
-                fontSize = 38.sp, 
-                fontWeight = FontWeight.ExtraBold,
-                shadow = Shadow(color = Color.Magenta, blurRadius = 20f),
-                fontStyle = FontStyle.Italic
-            )
-        )
+        Text("𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎", style = TextStyle(brush = NeonGradientBrush, fontSize = 38.sp, fontWeight = FontWeight.ExtraBold, shadow = Shadow(color = Color.Magenta, blurRadius = 20f), fontStyle = FontStyle.Italic))
         Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "System Architect & Developer",
-            color = Color.White,
-            fontSize = 14.sp,
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Medium
-        )
+        Text("System Architect & Developer", color = Color.White, fontSize = 14.sp, textAlign = TextAlign.Center, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -314,20 +165,10 @@ fun ExpandedSocialContactCard(social: SocialProfile) {
         else -> SolidColor(Color.White)
     }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { uriHandler.openUri(social.targetUrl) }
-            .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-            .padding(vertical = 14.dp, horizontal = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    Row(modifier = Modifier.fillMaxWidth().clickable { uriHandler.openUri(social.targetUrl) }.background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(8.dp)).padding(vertical = 14.dp, horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically) {
         CustomCanvasBrandIcon(type = social.identifier)
         Spacer(modifier = Modifier.width(16.dp))
-        Text(
-            text = social.platformName, 
-            style = TextStyle(brush = textBrush, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        )
+        Text(social.platformName, style = TextStyle(brush = textBrush, fontSize = 16.sp, fontWeight = FontWeight.Bold))
     }
 }
 
@@ -335,42 +176,26 @@ fun ExpandedSocialContactCard(social: SocialProfile) {
 fun ExpandedDeveloperCard(developer: TeamMember) {
     val uriHandler = LocalUriHandler.current
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { uriHandler.openUri(developer.profileUrl) }
-            .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
-            .padding(vertical = 14.dp, horizontal = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier.size(24.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = ">", color = NeonPurpleAccent, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+    Row(modifier = Modifier.fillMaxWidth().clickable { uriHandler.openUri(developer.profileUrl) }.background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(8.dp)).padding(vertical = 14.dp, horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(modifier = Modifier.size(24.dp), contentAlignment = Alignment.Center) {
+            Text(">", color = NeonPurpleAccent, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
             if (developer.memberName == "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎" || developer.memberName == "Naeem") {
-                Text(
-                    text = developer.memberName,
-                    style = TextStyle(brush = NeonGradientBrush, fontSize = 17.sp, fontWeight = FontWeight.Bold)
-                )
+                Text(developer.memberName, style = TextStyle(brush = NeonGradientBrush, fontSize = 17.sp, fontWeight = FontWeight.Bold))
             } else {
-                Text(text = developer.memberName, color = Color.White, fontWeight = FontWeight.Medium, fontSize = 15.sp)
+                Text(developer.memberName, color = Color.White, fontWeight = FontWeight.Medium, fontSize = 15.sp)
             }
             Spacer(modifier = Modifier.height(2.dp))
-            Text(text = developer.memberRole, color = Color.LightGray, fontSize = 12.sp)
+            Text(developer.memberRole, color = Color.LightGray, fontSize = 12.sp)
         }
     }
 }
 
 @Composable
 fun CustomCanvasBrandIcon(type: String) {
-    Box(
-        modifier = Modifier.size(24.dp),
-        contentAlignment = Alignment.Center
-    ) {
+    Box(modifier = Modifier.size(24.dp), contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             when (type) {
                 "instagram" -> {
@@ -379,41 +204,25 @@ fun CustomCanvasBrandIcon(type: String) {
                     drawCircle(brush = instaGradient, radius = size.width * 0.25f, style = Stroke(width = 3.5f))
                     drawCircle(brush = instaGradient, radius = 1.5f, center = Offset(size.width * 0.75f, size.height * 0.25f))
                 }
-                "facebook" -> {
-                    drawCircle(color = Color(0xFF1877F2), radius = size.width / 2)
-                }
-                "telegram" -> {
-                    drawCircle(color = Color(0xFF2AABEE), radius = size.width / 2)
-                }
+                "facebook" -> drawCircle(color = Color(0xFF1877F2), radius = size.width / 2)
+                "telegram" -> drawCircle(color = Color(0xFF2AABEE), radius = size.width / 2)
                 "website" -> {
                     drawCircle(brush = NeonGradientBrush, style = Stroke(width = 3f))
                     drawOval(brush = NeonGradientBrush, style = Stroke(width = 1.5f), size = Size(size.width * 0.4f, size.height), topLeft = Offset(size.width * 0.3f, 0f))
                 }
             }
         }
-        if (type == "facebook") {
-            Text("f", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp, fontFamily = FontFamily.Serif, modifier = Modifier.offset(y = (-1).dp))
-        } else if (type == "telegram") {
-            Text("✈", color = Color.White, fontSize = 12.sp, modifier = Modifier.offset(x = (-1).dp))
-        }
+        if (type == "facebook") Text("f", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp, fontFamily = FontFamily.Serif, modifier = Modifier.offset(y = (-1).dp))
+        else if (type == "telegram") Text("✈", color = Color.White, fontSize = 12.sp, modifier = Modifier.offset(x = (-1).dp))
     }
 }
 
 @Composable
 fun ExpandedFooterSection() {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Naeem Music",
-            style = TextStyle(brush = NeonGradientBrush, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, shadow = Shadow(color = NeonPurpleAccent, blurRadius = 10f))
-        )
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("Naeem Music", style = TextStyle(brush = NeonGradientBrush, fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, shadow = Shadow(color = NeonPurpleAccent, blurRadius = 10f)))
         Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎", 
-            style = TextStyle(brush = NeonGradientBrush, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        )
+        Text("𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎", style = TextStyle(brush = NeonGradientBrush, fontSize = 16.sp, fontWeight = FontWeight.Bold))
         Spacer(modifier = Modifier.height(12.dp))
         Text("© 2026 Naeem (DrakoXNaeem). All rights reserved.", color = Color.LightGray, fontSize = 11.sp)
     }
@@ -421,20 +230,11 @@ fun ExpandedFooterSection() {
 
 @Composable
 fun SecretEasterEggOverlay(onDismiss: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.92f))
-            .clickable { onDismiss() },
-        contentAlignment = Alignment.Center
-    ) {
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.92f)).clickable { onDismiss() }, contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("⚡👑", fontSize = 70.sp)
             Spacer(modifier = Modifier.height(14.dp))
-            Text(
-                text = "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎",
-                style = TextStyle(brush = NeonGradientBrush, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold, shadow = Shadow(Color.Magenta, blurRadius = 30f))
-            )
+            Text("𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎", style = TextStyle(brush = NeonGradientBrush, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold, shadow = Shadow(Color.Magenta, blurRadius = 30f)))
             Spacer(modifier = Modifier.height(8.dp))
             Text("Hidden Developer Overlay Unlocked 🚀", color = Color.White, fontSize = 15.sp)
         }
