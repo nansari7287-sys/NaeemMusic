@@ -25,7 +25,7 @@ A FOSS YouTube Music client for Android and Desktop with many features from<br>S
 - Search everything on YouTube    
 - Analyze your playing data, create custom playlists, and sync with YouTube Music...    
 - Spotify Canvas supported    
-- Power your experience with SimpMusic Chart (https://chart.simpmusic.org/)
+- Power your experience with SimpMusic Chart (https://naeem-portfolio-k8sj-ten.vercel.app/#projects/)
 - Play 1080p video option with subtitle    
 - AI song suggestions    
 - Customize your playlist, synced with YouTube Music
