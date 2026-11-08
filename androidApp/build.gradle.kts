@@ -157,10 +157,6 @@ dependencies {
         implementation(projects.crashlyticsEmpty)
     }
 
-    // ---> FIREBASE LIBRARIES (Updates ke liye) <---
-    implementation("com.google.firebase:firebase-config-ktx:21.6.0")
-    implementation("com.google.firebase:firebase-analytics-ktx:21.5.0")
-
     // ---> EXO PLAYER LIBRARIES (Background Video chalane ke liye) <---
     implementation("androidx.media3:media3-exoplayer:1.3.1")
     implementation("androidx.media3:media3-ui:1.3.1")
