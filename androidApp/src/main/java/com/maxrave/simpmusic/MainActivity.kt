@@ -328,12 +328,6 @@ class MainActivity : AppCompatActivity() {
         shouldUnbind = true
     }
 
-    private fun checkForUpdate() {
-        if (viewModel.shouldCheckForUpdate()) {
-            viewModel.checkForUpdate()
-        }
-    }
-
     private fun putString(
         key: String,
         value: String,
