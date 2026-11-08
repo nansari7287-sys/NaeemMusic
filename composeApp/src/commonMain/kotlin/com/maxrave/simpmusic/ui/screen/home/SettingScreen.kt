@@ -454,7 +454,6 @@ fun SettingScreen(
     val videoDownloadQuality by viewModel.videoDownloadQuality.collectAsStateWithLifecycle()
     val keepYoutubePlaylistOffline by viewModel.keepYouTubePlaylistOffline.collectAsStateWithLifecycle()
     val localTrackingEnabled by viewModel.localTrackingEnabled.collectAsStateWithLifecycle(initialValue = false)
-    val blogNotificationEnabled by viewModel.blogNotificationEnabled.collectAsStateWithLifecycle()
     val combineLocalAndYouTubeLiked by viewModel.combineLocalAndYouTubeLiked.collectAsStateWithLifecycle()
     val playVideo by remember { viewModel.playVideoInsteadOfAudio.map { it == TRUE } }.collectAsStateWithLifecycle(initialValue = false)
     val videoQuality by viewModel.videoQuality.collectAsStateWithLifecycle()
@@ -477,7 +476,6 @@ fun SettingScreen(
     val canvasCache by viewModel.canvasCacheSize.collectAsStateWithLifecycle()
     val limitPlayerCache by viewModel.playerCacheLimit.collectAsStateWithLifecycle()
     val fraction by viewModel.fraction.collectAsStateWithLifecycle()
-    val lastCheckUpdate by viewModel.lastCheckForUpdate.collectAsStateWithLifecycle()
     val explicitContentEnabled by viewModel.explicitContentEnabled.collectAsStateWithLifecycle()
     val usingProxy by viewModel.usingProxy.collectAsStateWithLifecycle()
     val proxyType by viewModel.proxyType.collectAsStateWithLifecycle()
@@ -485,7 +483,6 @@ fun SettingScreen(
     val proxyPort by viewModel.proxyPort.collectAsStateWithLifecycle()
     val proxyUsername by viewModel.proxyUsername.collectAsStateWithLifecycle()
     val proxyPassword by viewModel.proxyPassword.collectAsStateWithLifecycle()
-    val autoCheckUpdate by viewModel.autoCheckUpdate.collectAsStateWithLifecycle()
     val aiProvider by viewModel.aiProvider.collectAsStateWithLifecycle()
     val isHasApiKey by viewModel.isHasApiKey.collectAsStateWithLifecycle()
     val useAITranslation by viewModel.useAITranslation.collectAsStateWithLifecycle()
@@ -500,7 +497,6 @@ fun SettingScreen(
     val autoBackupFrequency by viewModel.autoBackupFrequency.collectAsStateWithLifecycle()
     val autoBackupMaxFiles by viewModel.autoBackupMaxFiles.collectAsStateWithLifecycle()
     val autoBackupLastTime by viewModel.autoBackupLastTime.collectAsStateWithLifecycle()
-    val updateChannel by viewModel.updateChannel.collectAsStateWithLifecycle()
     val enableLiquidGlass by viewModel.enableLiquidGlass.collectAsStateWithLifecycle()
     val themeMode by sharedViewModel.getThemeMode().collectAsStateWithLifecycle(DataStoreManager.THEME_MODE_DARK)
     val themeColorSource by sharedViewModel.getThemeColorSource().collectAsStateWithLifecycle(DataStoreManager.THEME_COLOR_DEFAULT)
@@ -518,31 +514,12 @@ fun SettingScreen(
     val crossfadeDjMode by viewModel.crossfadeDjMode.collectAsStateWithLifecycle()
     val castState by viewModel.castState.collectAsStateWithLifecycle()
 
-    val isCheckingUpdate by sharedViewModel.isCheckingUpdate.collectAsStateWithLifecycle()
 
     val hazeState =
         rememberHazeState(
             blurEnabled = true,
         )
 
-    val checkForUpdateSubtitle by remember {
-        derivedStateOf {
-            if (isCheckingUpdate) {
-                return@derivedStateOf runBlocking { getString(Res.string.checking) }
-            } else {
-                val lastCheckLong = lastCheckUpdate?.toLong() ?: 0L
-                return@derivedStateOf runBlocking {
-                    getString(
-                        Res.string.last_checked_at,
-                        DateTimeFormatter
-                            .ofPattern("yyyy-MM-dd HH:mm:ss")
-                            .withZone(ZoneId.systemDefault())
-                            .format(Instant.ofEpochMilli(lastCheckLong)),
-                    )
-                }
-            }
-        }
-    }
     var showYouTubeAccountDialog by rememberSaveable {
         mutableStateOf(false)
     }
@@ -2256,73 +2233,12 @@ fun SettingScreen(
                     },
                 )
                 SettingItem(
-                    title = stringResource(Res.string.auto_check_for_update),
-                    subtitle = stringResource(Res.string.auto_check_for_update_description),
-                    switch = (autoCheckUpdate to { viewModel.setAutoCheckUpdate(it) }),
-                )
-                SettingItem(
-                    title = stringResource(Res.string.update_channel),
-                    subtitle =
-                        if (updateChannel == DataStoreManager.FDROID) {
-                            "F-Droid"
-                        } else {
-                            "𝑵𝒂𝒆𝒆𝒎 𝑴𝒖𝒔𝒊𝒄 GitHub Release"
-                        },
-                    onClick = {
-                        viewModel.setAlertData(
-                            SettingAlertState(
-                                title = runBlocking { getString(Res.string.update_channel) },
-                                selectOne =
-                                    SettingAlertState.SelectData(
-                                        listSelect =
-                                            listOf(
-                                                (updateChannel == DataStoreManager.FDROID) to "F-Droid",
-                                                (updateChannel == DataStoreManager.GITHUB) to "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎 GitHub Release",
-                                            ),
-                                    ),
-                                confirm =
-                                    runBlocking { getString(Res.string.change) } to { state ->
-                                        viewModel.setUpdateChannel(
-                                            when (state.selectOne?.getSelected()) {
-                                                "F-Droid" -> DataStoreManager.FDROID
-                                                "𝑫𝒓𝒂𝒌𝒐𝑿𝑵𝒂𝒆𝒆𝒎 GitHub Release" -> DataStoreManager.GITHUB
-                                                else -> DataStoreManager.GITHUB
-                                            },
-                                        )
-                                    },
-                                dismiss = runBlocking { getString(Res.string.cancel) },
-                            ),
-                        )
-                    },
-                )
-                SettingItem(
-                    title = stringResource(Res.string.check_for_update),
-                    subtitle = checkForUpdateSubtitle,
-                    onClick = {
-                        sharedViewModel.checkForUpdate()
-                    },
-                )
-                SettingItem(
                     title = stringResource(Res.string.author),
                     subtitle = stringResource(Res.string.maxrave_dev),
                     onClick = {
                         uriHandler.openUri("https://github.com/nansari7287-sys")
                     },
                 )
-                SettingItem(
-                    title = stringResource(Res.string.developer_blog),
-                    subtitle = stringResource(Res.string.developer_blog_tagline),
-                    onClick = {
-                        uriHandler.openUri("https://github.com/nansari7287-sys")
-                    },
-                )
-                if (getPlatform() == Platform.Android) {
-                    SettingItem(
-                        title = stringResource(Res.string.blog_notification_title),
-                        subtitle = stringResource(Res.string.blog_notification_description),
-                        switch = (blogNotificationEnabled to { viewModel.setBlogNotificationEnabled(it) }),
-                    )
-                }
                 SettingItem(
                     title = stringResource(Res.string.buy_me_a_coffee),
                     subtitle = stringResource(Res.string.donation),
