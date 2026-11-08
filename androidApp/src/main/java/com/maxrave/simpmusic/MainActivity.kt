@@ -54,10 +54,6 @@ import pub.devrel.easypermissions.EasyPermissions
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-// FIREBASE IMPORTS
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
-
 @Suppress("DEPRECATION")
 class MainActivity : AppCompatActivity() {
     val viewModel: SharedViewModel by inject()
@@ -110,61 +106,26 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // ---> FIREBASE REMOTE CONFIG CODE START <---
-        try {
-            val remoteConfig = FirebaseRemoteConfig.getInstance()
-            val configSettings = FirebaseRemoteConfigSettings.Builder()
-                .setMinimumFetchIntervalInSeconds(0) // Testing ke liye
-                .build()
-            remoteConfig.setConfigSettingsAsync(configSettings)
-
-            remoteConfig.fetchAndActivate().addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    val isMaintenance = remoteConfig.getBoolean("maintenance_mode")
-                    val latestVersionCode = remoteConfig.getString("latest_version_code")
-                    val updateUrl = remoteConfig.getString("update_url")
-                    val currentVersion = "1.7.0"
-                    val showAnnouncement = remoteConfig.getBoolean("show_announcement")
-                    val announcementMsg = remoteConfig.getString("announcement_msg")
-
-                    runOnUiThread {
-                        if (isMaintenance) {
-                            val builder = AlertDialog.Builder(this@MainActivity)
-                            builder.setTitle("Maintenance Notice 🚧")
-                            builder.setMessage("App par abhi kaam chal raha hai. Kripya thodi der baad koshish karein.")
-                            builder.setCancelable(false)
-                            builder.show()
-                        } else if (latestVersionCode.isNotEmpty() && latestVersionCode != currentVersion) {
-                            val builder = AlertDialog.Builder(this@MainActivity)
-                            builder.setTitle("Naya Update Available! 🚀")
-                            builder.setMessage("App ka naya version ($latestVersionCode) aa gaya hai. Update karein!")
-                            builder.setPositiveButton("Update") { _, _ ->
-                                if (updateUrl.isNotEmpty()) {
-                                    val intent = android.content.Intent(
-                                        android.content.Intent.ACTION_VIEW, 
-                                        android.net.Uri.parse(updateUrl)
-                                    )
-                                    startActivity(intent)
-                                }
-                            }
-                            builder.setCancelable(false)
-                            builder.show()
-                        } else if (showAnnouncement && announcementMsg.isNotEmpty()) {
-                            val builder = AlertDialog.Builder(this@MainActivity)
-                            builder.setTitle("Notice 📢")
-                            builder.setMessage(announcementMsg)
-                            builder.setPositiveButton("OK") { dialog, _ -> 
-                                dialog.dismiss() 
-                            }
-                            builder.show()
-                        }
+        // Fetch public remote settings without blocking app startup.
+        // NaeemRemoteConfig keeps the last valid response for offline use.
+        NaeemRemoteConfig.fetch(this) { config ->
+            if (config != null) {
+                runOnUiThread {
+                    val announcement = config.optJSONObject("announcement")
+                    val enabled = announcement?.optBoolean("enabled", false) == true
+                    val message = announcement?.optString("message", "").orEmpty()
+                    val title = announcement?.optString("title", "Naeem Music").orEmpty()
+                    if (enabled && message.isNotBlank() && !isFinishing) {
+                        AlertDialog.Builder(this@MainActivity)
+                            .setTitle(title.ifBlank { "Naeem Music" })
+                            .setMessage(message)
+                            .setPositiveButton("OK", null)
+                            .show()
                     }
                 }
             }
-        } catch (e: Exception) {
-            Logger.e("FirebaseConfig", "Firebase error: ${e.message}")
         }
-        // ---> FIREBASE REMOTE CONFIG CODE END <---
+
 
         loadKoinModules(
             module {
