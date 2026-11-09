@@ -13,8 +13,6 @@ plugins {
 }
 
 android {
-    val abis = arrayOf("armeabi-v7a", "arm64-v8a", "x86_64")
-
     namespace = "com.maxrave.simpmusic"
     compileSdk = 37
 
@@ -22,62 +20,27 @@ android {
         applicationId = "com.maxrave.simpmusic"
         minSdk = 26
         targetSdk = 36
-        versionCode =
-            libs.versions.version.code
-                .get()
-                .toInt()
-        versionName =
-            libs.versions.version.name
-                .get()
+        versionCode = libs.versions.version.code.get().toInt()
+        versionName = libs.versions.version.name.get()
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled = true
 
         @Suppress("UnstableApiUsage")
         androidResources {
-            localeFilters +=
-                listOf(
-                    "en",
-                    "vi",
-                    "it",
-                    "de",
-                    "ru",
-                    "tr",
-                    "fi",
-                    "pl",
-                    "pt",
-                    "fr",
-                    "es",
-                    "zh-rCN",
-                    "id",
-                    "in",
-                    "ar",
-                    "ja",
-                    "zh-rTW",
-                    "uk",
-                    "iw",
-                    "az",
-                    "hi",
-                    "th",
-                    "nl",
-                    "ko",
-                    "ca",
-                    "fa",
-                    "bg",
-                )
+            localeFilters += listOf(
+                "en", "vi", "it", "de", "ru", "tr", "fi", "pl", "pt", "fr",
+                "es", "zh-rCN", "id", "in", "ar", "ja", "zh-rTW", "uk", "iw",
+                "az", "hi", "th", "nl", "ko", "ca", "fa", "bg",
+            )
         }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        ndk {
-            abiFilters.add("x86_64")
-            abiFilters.add("armeabi-v7a")
-            abiFilters.add("arm64-v8a")
-        }
+        // One APK for the user's Android phone architecture.
+        ndk { abiFilters.add("arm64-v8a") }
     }
 
     bundle {
-        language {
-            enableSplit = false
-        }
+        language { enableSplit = false }
     }
 
     buildTypes {
@@ -88,14 +51,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            splits {
-                abi {
-                    isEnable = true
-                    reset()
-                    isUniversalApk = true
-                    include(*abis)
-                }
-            }
+            // ABI splits intentionally disabled: produce one arm64 APK only.
         }
         debug {
             isMinifyEnabled = false
@@ -115,23 +71,13 @@ android {
     }
     packaging {
         jniLibs.useLegacyPackaging = true
-        jniLibs.excludes +=
-            listOf(
-                "META-INF/META-INF/DEPENDENCIES",
-                "META-INF/LICENSE",
-                "META-INF/LICENSE.txt",
-                "META-INF/license.txt",
-                "META-INF/NOTICE",
-                "META-INF/NOTICE.txt",
-                "META-INF/notice.txt",
-                "META-INF/ASL2.0",
-                "META-INF/asm-license.txt",
-                "META-INF/notice",
-                "META-INF/*.kotlin_module",
-            )
-        resources {
-            excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
-        }
+        jniLibs.excludes += listOf(
+            "META-INF/META-INF/DEPENDENCIES", "META-INF/LICENSE",
+            "META-INF/LICENSE.txt", "META-INF/license.txt", "META-INF/NOTICE",
+            "META-INF/NOTICE.txt", "META-INF/notice.txt", "META-INF/ASL2.0",
+            "META-INF/asm-license.txt", "META-INF/notice", "META-INF/*.kotlin_module",
+        )
+        resources { excludes += "META-INF/versions/9/OSGI-INF/MANIFEST.MF" }
     }
 }
 
@@ -147,21 +93,12 @@ dependencies {
     implementation(libs.glance)
     implementation(libs.glance.appwidget)
     implementation(libs.glance.material3)
-
     implementation(projects.composeApp)
     implementation(projects.data)
 
-    if (isFullBuild) {
-        implementation(projects.crashlytics)
-    } else {
-        implementation(projects.crashlyticsEmpty)
-    }
+    if (isFullBuild) implementation(projects.crashlytics)
+    else implementation(projects.crashlyticsEmpty)
 
-    // ---> FIREBASE LIBRARIES (Updates ke liye) <---
-    implementation("com.google.firebase:firebase-config-ktx:21.6.0")
-    implementation("com.google.firebase:firebase-analytics-ktx:21.5.0")
-
-    // ---> EXO PLAYER LIBRARIES (Background Video chalane ke liye) <---
     implementation("androidx.media3:media3-exoplayer:1.3.1")
     implementation("androidx.media3:media3-ui:1.3.1")
 }

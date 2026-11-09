@@ -1,130 +1,95 @@
-name: Build APK for Release (Full & FOSS)
+name: Build One Naeem Music APK
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - 'main'
-      - 'dev'
-    paths-ignore:
-      - 'README.md'
-      - 'fastlane/**'
-      - 'assets/**'
-      - '.github/**/*.md'
-      - '.github/FUNDING.yml'
-      - '.github/ISSUE_TEMPLATE/**'
+    inputs:
+      edition:
+        description: "Build exactly one APK edition"
+        required: true
+        type: choice
+        default: foss
+        options:
+          - foss
+          - full
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  # ==========================================
-  # JOB 1: FULL RELEASE BUILD
-  # ==========================================
-  build-full-release:
-    name: Build full release version
+  build-one-apk:
+    name: Build one ${{ inputs.edition }} arm64 APK
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
-
     steps:
-      - name: Checkout Code
+      - name: Checkout source
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          submodules: recursive
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: 21
-          distribution: "microsoft"
-          cache: 'gradle'
+          java-version: "21"
+          distribution: microsoft
+          cache: gradle
 
-      - name: Setup Last.fm Secrets
+      - name: Configure selected edition and secrets
         env:
+          EDITION: ${{ inputs.edition }}
+          BASE_64_SIGNING_KEY: ${{ secrets.BASE_64_SIGNING_KEY }}
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
-          echo "LASTFM_API_KEY=${{ secrets.LASTFM_API_KEY }}" >> ./local.properties
-          echo "LASTFM_SECRET=${{ secrets.LASTFM_SECRET }}" >> ./local.properties
-
-      - name: Decode Keystore File
-        env:
-          BASE_64_SIGNING_KEY: ${{ secrets.BASE_64_SIGNING_KEY }}
-        run: |
+          if [ -z "$BASE_64_SIGNING_KEY" ]; then
+            echo "Missing BASE_64_SIGNING_KEY repository secret"
+            exit 1
+          fi
           echo "$BASE_64_SIGNING_KEY" | base64 -d > simpmusic.jks
+          if [ "$EDITION" = "full" ]; then
+            echo "isFullBuild=true" >> ./gradle.properties
+          else
+            echo "isFullBuild=false" >> ./gradle.properties
+          fi
+          {
+            echo "LASTFM_API_KEY=$LASTFM_API_KEY"
+            echo "LASTFM_SECRET=$LASTFM_SECRET"
+            echo "SENTRY_DSN=$SENTRY_DSN"
+            echo "SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN"
+          } > ./local.properties
 
-      - name: Enable Full Build Flavor
-        run: |
-          echo "" >> ./gradle.properties
-          echo "isFullBuild=true" >> ./gradle.properties
+      - name: Generate library metadata
+        run: ./gradlew exportLibraryDefinitions
 
-      - name: Build Full Release APK
+      - name: Build, align and sign one APK
         env:
+          EDITION: ${{ inputs.edition }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./build_and_sign_apk.sh --release --full
-
-      - name: Rename Output APK to NaeemMusic.apk
         run: |
-          find androidApp/build/outputs/apk/release/ -name "*.apk" -exec mv {} androidApp/build/outputs/apk/release/NaeemMusic.apk \;
+          if [ "$EDITION" = "full" ]; then
+            ./build_and_sign_apk.sh --release --full
+          else
+            ./build_and_sign_apk.sh --release --foss
+          fi
 
-      - name: Upload Full Release APK
+      - name: Verify exactly one signed APK
+        run: |
+          mapfile -t APKS < <(find androidApp/build/outputs/apk/release -maxdepth 1 -type f -name "SimpMusic-*.apk")
+          if [ "${#APKS[@]}" -ne 1 ]; then
+            echo "Expected exactly one signed APK, found ${#APKS[@]}"
+            printf '%s\n' "${APKS[@]}"
+            exit 1
+          fi
+          cp "${APKS[0]}" "./NaeemMusic-${{ inputs.edition }}-arm64.apk"
+
+      - name: Upload only the signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: NaeemMusic-Full-Release
-          path: androidApp/build/outputs/apk/release/NaeemMusic.apk
-
-
-  # ==========================================
-  # JOB 2: FOSS RELEASE BUILD
-  # ==========================================
-  build-foss-release:
-    name: Build foss release version
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          submodules: 'recursive'
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: 21
-          distribution: "microsoft"
-          cache: 'gradle'
-
-      - name: Decode Keystore File
-        env:
-          BASE_64_SIGNING_KEY: ${{ secrets.BASE_64_SIGNING_KEY }}
-        run: |
-          echo "$BASE_64_SIGNING_KEY" | base64 -d > simpmusic.jks
-
-      - name: Enable FOSS Build Flavor
-        run: |
-          echo "" >> ./gradle.properties
-          echo "isFullBuild=false" >> ./gradle.properties
-
-      - name: Build FOSS Release APK
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./build_and_sign_apk.sh --release --foss
-
-      - name: Rename Output APK to NaeemMusic.apk
-        run: |
-          find androidApp/build/outputs/apk/release/ -name "*.apk" -exec mv {} androidApp/build/outputs/apk/release/NaeemMusic.apk \;
-
-      - name: Upload FOSS Release APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: NaeemMusic-FOSS-Release
-          path: androidApp/build/outputs/apk/release/NaeemMusic.apk
+          name: NaeemMusic-${{ inputs.edition }}-arm64
+          path: NaeemMusic-${{ inputs.edition }}-arm64.apk
+          if-no-files-found: error
