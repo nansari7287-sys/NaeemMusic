@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       edition:
-        description: "Choose exactly one APK edition"
+        description: "Build exactly one APK edition"
         required: true
         type: choice
         default: foss
@@ -35,14 +35,20 @@ jobs:
           distribution: microsoft
           cache: gradle
 
-      - name: Configure selected edition
+      - name: Configure selected edition and secrets
         env:
           EDITION: ${{ inputs.edition }}
+          BASE_64_SIGNING_KEY: ${{ secrets.BASE_64_SIGNING_KEY }}
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
+          if [ -z "$BASE_64_SIGNING_KEY" ]; then
+            echo "Missing BASE_64_SIGNING_KEY repository secret"
+            exit 1
+          fi
+          echo "$BASE_64_SIGNING_KEY" | base64 -d > simpmusic.jks
           if [ "$EDITION" = "full" ]; then
             echo "isFullBuild=true" >> ./gradle.properties
           else
@@ -58,24 +64,31 @@ jobs:
       - name: Generate library metadata
         run: ./gradlew exportLibraryDefinitions
 
-      - name: Build exactly one APK
-        run: ./gradlew androidApp:assembleRelease
-
-      - name: Verify single APK output
-        id: apk
+      - name: Build, align and sign one APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          mapfile -t APKS < <(find androidApp/build/outputs/apk/release -maxdepth 1 -type f -name "*.apk")
+          if [ "$EDITION" = "full" ]; then
+            ./build_and_sign_apk.sh --release --full
+          else
+            ./build_and_sign_apk.sh --release --foss
+          fi
+
+      - name: Verify exactly one signed APK
+        run: |
+          mapfile -t APKS < <(find androidApp/build/outputs/apk/release -maxdepth 1 -type f -name "SimpMusic-*.apk")
           if [ "${#APKS[@]}" -ne 1 ]; then
-            echo "Expected exactly one APK, found ${#APKS[@]}"
+            echo "Expected exactly one signed APK, found ${#APKS[@]}"
             printf '%s\n' "${APKS[@]}"
             exit 1
           fi
           cp "${APKS[0]}" "./NaeemMusic-${{ inputs.edition }}-arm64.apk"
-          echo "path=NaeemMusic-${{ inputs.edition }}-arm64.apk" >> "$GITHUB_OUTPUT"
 
-      - name: Upload only the APK
+      - name: Upload only the signed APK
         uses: actions/upload-artifact@v4
         with:
           name: NaeemMusic-${{ inputs.edition }}-arm64
-          path: ${{ steps.apk.outputs.path }}
+          path: NaeemMusic-${{ inputs.edition }}-arm64.apk
           if-no-files-found: error
